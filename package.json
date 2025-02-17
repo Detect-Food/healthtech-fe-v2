@@ -1,5 +1,5 @@
 {
-  "name": "test-expo",
+  "name": "healthtech",
   "version": "1.0.0",
   "main": "index.js",
   "scripts": {
@@ -9,10 +9,22 @@
     "web": "expo start --web"
   },
   "dependencies": {
-    "expo": "~52.0.35",
+    "@react-native-async-storage/async-storage": "^2.1.1",
+    "@react-native-picker/picker": "^2.9.0",
+    "@react-navigation/bottom-tabs": "^6.6.1",
+    "@react-navigation/native": "^6.1.18",
+    "@react-navigation/stack": "^6.4.1",
+    "axios": "^1.7.9",
+    "expo": "~52.0.30",
+    "expo-image-picker": "^16.0.5",
     "expo-status-bar": "~2.0.1",
+    "formik": "^2.4.6",
     "react": "18.3.1",
-    "react-native": "0.76.7"
+    "react-native": "0.76.6",
+    "react-native-toast-message": "^2.2.1",
+    "react-dom": "18.3.1",
+    "react-native-web": "~0.19.13",
+    "@expo/metro-runtime": "~4.0.1"
   },
   "devDependencies": {
     "@babel/core": "^7.20.0"
