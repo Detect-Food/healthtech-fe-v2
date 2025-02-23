@@ -7,9 +7,9 @@ class AuthAPI {
 
 
 
-    login = async (email, password) => {
+    login = async (username, password) => {
         const body = {
-            email: email,
+            username: username,
             password: password
         }
         return UnauthorApi.post(`${this.url}/login`, body);

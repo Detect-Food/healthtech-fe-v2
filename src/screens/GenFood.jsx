@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, TextInput, Button, ScrollView, StyleSheet, SafeAreaView } from 'react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 import FoodAPI from '../api/FoodAPI';
 
@@ -7,24 +8,36 @@ const GenFood = () => {
   const [gender, setGender] = useState('');
   const [height, setHeight] = useState('');
   const [weight, setWeight] = useState('');
-  const [birthDate, setBirthDate] = useState('');
+  const [age, setAge] = useState('');
   const [note, setNote] = useState('');
   const [mealPlan, setMealPlan] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
-  const calculateAge = (birthYear) => {
-    const currentYear = new Date().getFullYear();
-    return currentYear - birthYear;
-  };
+  useEffect(() => {
+    const fetchUserData = async () => {
+      try {
+        const storedGender = await AsyncStorage.getItem('gender');
+        const storedHeight = await AsyncStorage.getItem('height');
+        const storedWeight = await AsyncStorage.getItem('weight');
+        const storedAge = await AsyncStorage.getItem('age');
+
+        if (storedGender) setGender(storedGender);
+        if (storedHeight) setHeight(storedHeight);
+        if (storedWeight) setWeight(storedWeight);
+        if (storedAge) setAge(storedAge);
+      } catch (error) {
+        console.error('Lỗi khi lấy dữ liệu từ AsyncStorage:', error);
+      }
+    };
+
+    fetchUserData();
+  }, []);
 
   const generateMeal = async () => {
     setLoading(true);
     setMealPlan(null);
     setError('');
-
-    const birthYear = birthDate ? parseInt(birthDate.split(', ')[1], 10) : null;
-    const age = birthYear ? calculateAge(birthYear) : null;
 
     const body = {
       age: age || 25,
@@ -37,8 +50,6 @@ const GenFood = () => {
     try {
       const response = await FoodAPI.genFood(body);
 
-      console.log('API Response:', response);
-
       if (response && response.days) {
         setMealPlan(response);
       } else {
@@ -50,7 +61,36 @@ const GenFood = () => {
     } finally {
       setLoading(false);
     }
+  };
 
+  const renderMealPlan = () => {
+    if (!mealPlan) return null;
+
+    return (
+      <View style={styles.mealContainer}>
+        <Text style={styles.sectionTitle}>🔥 Nhu cầu dinh dưỡng</Text>
+        <Text style={styles.nutritionalDescription}>
+          {mealPlan.nutritionalNeeds?.description || ''}
+        </Text>
+        <Text style={styles.calories}>
+          🌟 {mealPlan.nutritionalNeeds?.totalCalories || ''}
+        </Text>
+
+        <Text style={styles.sectionTitle}>📅 Thực đơn theo ngày</Text>
+        {mealPlan.days.map((day, index) => (
+          <View key={index} style={styles.dayContainer}>
+            <Text style={styles.dayTitle}>{day.day}</Text>
+            {day.meals.map((meal, mealIndex) => (
+              <View key={mealIndex} style={styles.mealDetailsContainer}>
+                <Text style={styles.mealText}>🍽 {meal.meal}</Text>
+                <Text style={styles.mealDescription}>{meal.description}</Text>
+                <Text style={styles.calories}>🌟 {meal.calories} kcal</Text>
+              </View>
+            ))}
+          </View>
+        ))}
+      </View>
+    );
   };
 
   return (
@@ -59,7 +99,7 @@ const GenFood = () => {
       <Text style={styles.infoText}>Giới tính: {gender}</Text>
       <Text style={styles.infoText}>Chiều cao: {height} cm</Text>
       <Text style={styles.infoText}>Cân nặng: {weight} kg</Text>
-      <Text style={styles.infoText}>Ngày sinh: {birthDate}</Text>
+      <Text style={styles.infoText}>Tuổi: {age}</Text>
 
       <TextInput
         style={styles.input}
@@ -69,32 +109,17 @@ const GenFood = () => {
         placeholderTextColor="#aaa"
       />
 
-      <Button title="Gen Meal" onPress={generateMeal} disabled={loading} color="#ff6347" />
+      <Button 
+        title="Gen Meal" 
+        onPress={generateMeal} 
+        disabled={loading} 
+        color="#ff6347" 
+      />
 
       {loading && <Text style={styles.loading}>Đang tạo bữa ăn...</Text>}
       {error ? <Text style={styles.errorText}>{error}</Text> : null}
 
-      {mealPlan && (
-        <View style={styles.mealContainer}>
-          <Text style={styles.sectionTitle}>🔥 Nhu cầu dinh dưỡng</Text>
-          <Text style={styles.nutritionalDescription}>{mealPlan.nutritionalNeeds?.description}</Text>
-          <Text style={styles.calories}>🌟 {mealPlan.nutritionalNeeds?.totalCalories}</Text>
-
-          <Text style={styles.sectionTitle}>📅 Thực đơn theo ngày</Text>
-          {mealPlan.days.map((day, index) => (
-            <View key={index} style={styles.dayContainer}>
-              <Text style={styles.dayTitle}>{day.day}</Text>
-              {day.meals.map((meal, mealIndex) => (
-                <View key={mealIndex} style={styles.mealDetailsContainer}>
-                  <Text style={styles.mealText}>🍽 {meal.meal}</Text>
-                  <Text>{meal.description}</Text>
-                  <Text style={styles.calories}>🌟 {meal.calories} kcal</Text>
-                </View>
-              ))}
-            </View>
-          ))}
-        </View>
-      )}
+      {renderMealPlan()}
     </ScrollView>
   );
 };
@@ -185,6 +210,11 @@ const styles = StyleSheet.create({
     fontSize: 14,
     fontWeight: 'bold',
     color: '#8e44ad',
+  },
+  mealDescription: {
+    fontSize: 14,
+    color: '#34495e',
+    marginTop: 5,
   },
 });
 
