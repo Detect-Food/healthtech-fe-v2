@@ -3,10 +3,13 @@ import { createStackNavigator } from '@react-navigation/stack';
 import { StatusBar } from 'expo-status-bar';
 import { NavigationContainer } from '@react-navigation/native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { Ionicons } from '@expo/vector-icons';
+
 import TabScreens from './src/components/TabScreens';
 import LoginScreen from './src/screens/LoginScreen';
 import ProfileSetupScreen from './src/screens/ProfileSetupScreen';
 import SignUpScreen from './src/screens/SignUpScreen';
+import PersonalDetailScreen from './src/screens/PersonalDetail';
 
 const Stack = createStackNavigator();
 
@@ -14,28 +17,23 @@ export default function App() {
   const [isFirstLaunch, setIsFirstLaunch] = useState(null);
 
   useEffect(() => {
-    checkIfFirstLaunch();
-  }, []);
-
-  const checkIfFirstLaunch = async () => {
-    try {
-      const hasLaunched = await AsyncStorage.getItem('hasLaunched');
-      if (hasLaunched === null) {
-        // First time launching the app
-        await AsyncStorage.setItem('hasLaunched', 'true');
-        setIsFirstLaunch(true);
-      } else {
+    (async () => {
+      try {
+        const hasLaunched = await AsyncStorage.getItem('hasLaunched');
+        if (hasLaunched === null) {
+          await AsyncStorage.setItem('hasLaunched', 'true');
+          setIsFirstLaunch(true);
+        } else {
+          setIsFirstLaunch(false);
+        }
+      } catch (error) {
         setIsFirstLaunch(false);
       }
-    } catch (error) {
-      // In case of error, default to Login screen
-      setIsFirstLaunch(false);
-    }
-  };
+    })();
+  }, []);
 
-  // Show loading screen while checking first launch status
   if (isFirstLaunch === null) {
-    return null; // Or return a loading component
+    return null; // Loading...
   }
 
   return (
@@ -44,6 +42,29 @@ export default function App() {
         <Stack.Screen name="Login" component={LoginScreen} options={{ headerShown: false }} />
         <Stack.Screen name="SignUp" component={SignUpScreen} options={{ headerShown: false }} />
 
+        <Stack.Screen
+          name="PersonalDetail"
+          component={PersonalDetailScreen}
+          options={({ navigation }) => ({
+            headerShown: true,
+            title: "Thông tin cá nhân",
+            headerLeft: () => (
+              <Ionicons
+                name="arrow-back"
+                size={24}
+                color="black"
+                style={{ marginLeft: 16 }}
+                onPress={() => {
+                  if (navigation.canGoBack()) {
+                    navigation.goBack();
+                  } else {
+                    navigation.navigate('Home'); // Nếu không có màn hình trước thì về Home
+                  }
+                }}
+              />
+            ),
+          })}
+        />
 
         <Stack.Screen name="Home" component={TabScreens} options={{ headerShown: false }} />
         <Stack.Screen name="ProfileSetup" component={ProfileSetupScreen} options={{ headerShown: false }} />

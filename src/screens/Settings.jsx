@@ -1,25 +1,30 @@
-import { View, Text, ScrollView, StyleSheet, TextInput, Image, Switch, SafeAreaView } from "react-native"
+import { View, Text, ScrollView, StyleSheet, TextInput, Image, Switch, SafeAreaView, TouchableOpacity } from "react-native"
 import { Ionicons } from "@expo/vector-icons"
+import { useNavigation } from "@react-navigation/native"
 
-const SettingsItem = ({ icon, label, value, color = "#000", showSwitch, isOn, showArrow = true }) => (
-  <View style={styles.settingsItem}>
-    <View style={styles.settingsItemLeft}>
-      <View style={[styles.iconContainer, { backgroundColor: color }]}>
-        <Ionicons name={icon} size={22} color="#fff" />
+const SettingsItem = ({ icon, label, value, color = "#000", showSwitch, isOn, showArrow = true, onPress }) => (
+  <TouchableOpacity onPress={onPress} activeOpacity={0.7}>
+    <View style={styles.settingsItem}>
+      <View style={styles.settingsItemLeft}>
+        <View style={[styles.iconContainer, { backgroundColor: color }]}>
+          <Ionicons name={icon} size={22} color="#fff" />
+        </View>
+        <Text style={styles.settingsItemLabel}>{label}</Text>
       </View>
-      <Text style={styles.settingsItemLabel}>{label}</Text>
+      <View style={styles.settingsItemRight}>
+        {value && <Text style={styles.settingsItemValue}>{value}</Text>}
+        {showSwitch && <Switch value={isOn} onValueChange={() => { }} />}
+        {showArrow && <Ionicons name="chevron-forward" size={20} color="#aaa" />}
+      </View>
     </View>
-    <View style={styles.settingsItemRight}>
-      {value && <Text style={styles.settingsItemValue}>{value}</Text>}
-      {showSwitch && <Switch value={isOn} onValueChange={() => { }} />}
-      {showArrow && <Ionicons name="chevron-forward" size={20} color="#aaa" />}
-    </View>
-  </View>
+  </TouchableOpacity>
 )
 
 const SettingsGroup = ({ children }) => <View style={styles.settingsGroup}>{children}</View>
 
 export default function SettingsScreen() {
+  const navigation = useNavigation()
+
   return (
     <SafeAreaView style={styles.container}>
       <ScrollView style={styles.scrollView}>
@@ -39,11 +44,15 @@ export default function SettingsScreen() {
           </View>
         </SettingsGroup>
 
-
         {/* System Settings */}
         <SettingsGroup>
           <SettingsItem icon="key" label="Change Password" color="#FC3D39" />
-          <SettingsItem icon="shield-checkmark" label="Security Settings" color="#007AFF" />
+          <SettingsItem
+            icon="person-circle"
+            label="Personal Detail"
+            color="#007AFF"
+            onPress={() => navigation.navigate("PersonalDetail")}
+          />
           <SettingsItem icon="lock-closed" label="Two-Factor Authentication" color="#4CD964" />
           <SettingsItem icon="eye" label="Privacy & Permissions" color="#6C2DC7" />
           <SettingsItem icon="phone-portrait" label="Manage Devices" color="#FC3D39" />
@@ -61,21 +70,13 @@ export default function SettingsScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#fff", // Chuyển sang nền trắng
+    backgroundColor: "#fff",
   },
   scrollView: {
     flex: 1,
   },
-  title: {
-    fontSize: 36,
-    fontWeight: "bold",
-    color: "#000", // Chữ đen
-    marginHorizontal: 16,
-    marginTop: 8,
-    marginBottom: 16,
-  },
   settingsGroup: {
-    backgroundColor: "#f9f9f9", // Nền xám nhạt cho từng nhóm cài đặt
+    backgroundColor: "#f9f9f9",
     marginBottom: 16,
     borderRadius: 10,
     marginHorizontal: 16,
@@ -106,7 +107,7 @@ const styles = StyleSheet.create({
   },
   settingsItemLabel: {
     fontSize: 16,
-    color: "#000", // Chữ đen
+    color: "#000",
   },
   settingsItemRight: {
     flexDirection: "row",
@@ -136,7 +137,7 @@ const styles = StyleSheet.create({
   profileName: {
     fontSize: 20,
     fontWeight: "600",
-    color: "#000", // Chữ đen
+    color: "#000",
     marginBottom: 4,
   },
   profileSubtitle: {

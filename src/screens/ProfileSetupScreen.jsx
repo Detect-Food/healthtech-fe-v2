@@ -81,9 +81,6 @@ const ProfileSetupScreen = ({ navigation }) => {
               <View style={styles.radioItem}>
                 <RadioButton value="Female" /><Text>Female</Text>
               </View>
-              <View style={styles.radioItem}>
-                <RadioButton value="Other" /><Text>Other</Text>
-              </View>
             </RadioButton.Group>
           </View>
 
