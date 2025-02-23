@@ -50,26 +50,23 @@ const SignUpScreen = () => {
             console.log("Mã trạng thái phản hồi:", response?.status);
             console.log("Dữ liệu phản hồi:", response?.data?.message);
 
-            // Kiểm tra kết quả đăng ký với status 201
             if (response?.status === 201) {
-                // Hiển thị thông báo thành công
-                setNotificationMessage(response?.data?.message || "Đăng ký thành công!");
+                setNotificationMessage({ message: response?.data?.message || "Đăng ký thành công!", type: "success" });
 
-                // Thêm delay 2 giây trước khi chuyển đến màn hình Đăng nhập
                 setTimeout(() => {
                     navigation.navigate("Login");
-                }, 1300); // Delay 1300ms (1.3 giây)
+                }, 1300);
             } else {
-                setFieldError("general", "Đăng ký không thành công. Vui lòng thử lại.");
-                setNotificationMessage("Đăng ký không thành công. Vui lòng thử lại.");
+                setNotificationMessage({ message: "Đăng ký không thành công. Vui lòng thử lại.", type: "error" });
             }
 
         } catch (error) {
-            // Xử lý lỗi API
-            setFieldError("general", "Đã có lỗi xảy ra. Vui lòng thử lại sau.");
-            setNotificationMessage("Đã có lỗi xảy ra. Vui lòng thử lại sau.");
-            console.error("Lỗi đăng ký:", error);
+            if (error?.response?.status === 400) {
+                setFieldError("warning", error?.response?.data?.message);
+                setNotificationMessage({ message: error?.response?.data?.message, type: "error" });
+            }
         }
+
     };
 
     return (
@@ -138,10 +135,12 @@ const SignUpScreen = () => {
                         )}
                     </Formik>
 
-                    {/* Hiển thị thông báo */}
                     {notificationMessage ? (
-                        <Text style={styles.notificationText}>{notificationMessage}</Text>
+                        <Text style={[styles.notificationText, notificationMessage.type === "error" ? styles.errorNotification : styles.successNotification]}>
+                            {notificationMessage.message}
+                        </Text>
                     ) : null}
+
 
                     {/* Đi đến màn hình Đăng nhập */}
                     <View>
@@ -227,12 +226,18 @@ const styles = StyleSheet.create({
         marginBottom: 10,
     },
     notificationText: {
-        color: "green",
         marginTop: 20,
         textAlign: "center",
         fontSize: 16,
         fontWeight: "bold",
     },
+    successNotification: {
+        color: "green",
+    },
+    errorNotification: {
+        color: "red",
+    },
+
 });
 
 export default SignUpScreen;
