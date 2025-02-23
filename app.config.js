@@ -1,5 +1,3 @@
-
-
 const IP = "192.168.100.126";
 
 export default {

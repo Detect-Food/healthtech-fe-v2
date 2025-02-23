@@ -5,8 +5,6 @@ class AuthAPI {
         this.url = "/api/auth";
     }
 
-
-
     login = async (email, password) => {
         const body = {
             email: email,
