@@ -24,6 +24,16 @@ class FoodAPI {
     };
 
 
+    saveMealPlan = async (userId, mealPlan) => {
+        const body = {
+            userId: userId,
+            mealPlan: mealPlan
+        }
+        return UnauthorApi.post(`${this.url}/save-meal-plan`, body);
+    };
+
+
+
 }
 
 export default new FoodAPI();

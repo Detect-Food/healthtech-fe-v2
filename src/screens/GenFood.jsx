@@ -15,6 +15,7 @@ const GenFood = () => {
   const [mealPlan, setMealPlan] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [saving, setSaving] = useState(false); // Trạng thái lưu
 
   useFocusEffect(
     React.useCallback(() => {
@@ -23,15 +24,15 @@ const GenFood = () => {
           const storedUserId = await AsyncStorage.getItem('userId');
           if (storedUserId) {
             const response = await UserAPI.getUserPhysicalStats(storedUserId);
-  
+
             if (response?.status === 200) {
               const { Gender, Height, Weight, Age, Note } = response?.userPhysicalStats || {};
-  
+
               setGender(Gender || '');
               setHeight(String(Height) || '');
               setWeight(String(Weight) || '');
               setAge(String(Age) || '');
-              setNote(Note || ''); // Lấy note từ API nếu có
+              setNote(Note || '');
             }
           }
         } catch (error) {
@@ -39,7 +40,7 @@ const GenFood = () => {
         }
       };
       fetchUserData();
-    }, []) // Hàm này sẽ chạy mỗi khi màn hình được focus
+    }, [])
   );
 
   const generateMeal = async () => {
@@ -72,6 +73,28 @@ const GenFood = () => {
     }
   };
 
+  const handleSaveMealPlan = async () => {
+    setSaving(true);
+    try {
+      const userId = await AsyncStorage.getItem('userId');
+      if (userId && mealPlan) {
+        const response = await FoodAPI.saveMealPlan(userId, mealPlan);
+        if (response?.status === 200) {
+          alert('Lưu lộ trình ăn thành công!');
+        } else {
+          alert('Lỗi khi lưu lộ trình ăn.');
+        }
+      } else {
+        alert('Lỗi khi lấy thông tin người dùng.');
+      }
+    } catch (error) {
+      console.error('Lỗi khi lưu lộ trình ăn:', error);
+      alert('Có lỗi xảy ra khi lưu lộ trình ăn.');
+    } finally {
+      setSaving(false);
+    }
+  };
+
   const renderMealPlan = () => {
     if (!mealPlan) return null;
 
@@ -98,6 +121,9 @@ const GenFood = () => {
             ))}
           </View>
         ))}
+
+
+        {saving && <Text style={styles.loading}>Đang lưu lộ trình...</Text>}
       </View>
     );
   };
@@ -112,12 +138,27 @@ const GenFood = () => {
 
       <Text style={styles.noteText}>Ghi chú: {note}</Text>
 
-      <Button
-        title="Gen Meal"
-        onPress={generateMeal}
-        disabled={loading}
-        color="#ff6347"
-      />
+      <View style={styles.buttonContainer}>
+        <Button
+          title="Gen Meal"
+          onPress={generateMeal}
+          disabled={loading}
+          color="#ff6347"
+        />
+      </View>
+
+      {/* Only show the save button when meal plan is generated */}
+      {!loading && mealPlan && (
+        <View style={styles.buttonContainer}>
+          <Button
+            title="Lưu lộ trình ăn"
+            onPress={handleSaveMealPlan}
+            disabled={saving}
+            color="#2ecc71"
+          />
+        </View>
+      )}
+
 
       {loading && <Text style={styles.loading}>Đang tạo bữa ăn...</Text>}
       {error ? <Text style={styles.errorText}>{error}</Text> : null}
@@ -126,6 +167,7 @@ const GenFood = () => {
     </ScrollView>
   );
 };
+
 
 const styles = StyleSheet.create({
   container: {
@@ -144,12 +186,6 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: '#34495e',
     marginBottom: 5,
-  },
-  noteText: {
-    fontSize: 16,
-    color: '#7f8c8d',
-    marginVertical: 15,
-    fontStyle: 'italic',
   },
   loading: {
     marginTop: 10,
@@ -215,6 +251,16 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: '#34495e',
     marginTop: 5,
+  },
+  buttonContainer: {
+    marginTop: 5,
+    marginBottom: 10,
+  },
+  noteText: {
+    fontSize: 16,
+    color: '#7f8c8d',
+    marginVertical: 5,
+    fontStyle: 'italic',
   },
 });
 
