@@ -49,9 +49,11 @@ const GenFood = () => {
 
     try {
       const response = await FoodAPI.genFood(body);
+      console.log(response?.data);
+      
 
-      if (response && response.days) {
-        setMealPlan(response);
+      if (response?.data && response?.data?.days) {
+        setMealPlan(response?.data);
       } else {
         setError('Không thể tạo bữa ăn, vui lòng thử lại.');
       }
