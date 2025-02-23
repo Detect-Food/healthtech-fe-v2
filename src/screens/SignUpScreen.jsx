@@ -10,24 +10,26 @@ import { Formik } from "formik";
 
 const { width } = Dimensions.get("window");
 
-const LoginScreen = () => {
+const SignUpScreen = () => {
     const navigation = useNavigation();
     const [showPassword, setShowPassword] = useState(true);
 
-    const handleLogin = async (values, { setFieldError }) => {
-
-
-        if (values.email !== "dev") {
-            setFieldError("email", "Email is incorrect");
+    const handleSignUp = async (values, { setFieldError }) => {
+        if (!values.username) {
+            setFieldError("username", "Username is required");
+            return;
         }
-        if (values.password !== "123") {
-            setFieldError("password", "Password is incorrect");
+        if (!values.email || !values.email.includes("@")) {
+            setFieldError("email", "Valid email is required");
+            return;
         }
-        if (values.email === "dev" && values.password === "123") {
-            navigation.navigate("Home");
+        if (!values.password || values.password.length < 6) {
+            setFieldError("password", "Password must be at least 6 characters");
+            return;
         }
+        console.log("User registered:", values);
+        navigation.navigate("Login");
     };
-
 
     return (
         <SafeAreaView style={styles.container}>
@@ -45,12 +47,12 @@ const LoginScreen = () => {
             >
                 <ScrollView contentContainerStyle={{ flexGrow: 1 }}>
                     <View style={{ marginTop: 20 }}>
-                        <Text style={styles.textLogin}>Log In</Text>
+                        <Text style={styles.textTitle}>Sign Up</Text>
                     </View>
 
                     <Formik
-                        initialValues={{ email: "", password: "" }}
-                        onSubmit={handleLogin}
+                        initialValues={{ username: "", email: "", password: "" }}
+                        onSubmit={handleSignUp}
                     >
                         {({
                             handleChange,
@@ -61,14 +63,25 @@ const LoginScreen = () => {
                             touched,
                         }) => (
                             <View style={styles.inputForm}>
+                                {/* Username Input */}
+                                <TextInput
+                                    placeholder="Enter your username"
+                                    placeholderTextColor="#999"
+                                    style={[styles.input, touched.username && errors.username ? styles.inputError : null]}
+                                    onChangeText={handleChange("username")}
+                                    onBlur={handleBlur("username")}
+                                    value={values.username}
+                                    autoCapitalize="none"
+                                />
+                                {touched.username && errors.username && (
+                                    <Text style={styles.errorText}>{errors.username}</Text>
+                                )}
+
                                 {/* Email Input */}
                                 <TextInput
                                     placeholder="Enter your email"
                                     placeholderTextColor="#999"
-                                    style={[
-                                        styles.input,
-                                        touched.email && errors.email ? styles.inputError : null
-                                    ]}
+                                    style={[styles.input, touched.email && errors.email ? styles.inputError : null]}
                                     onChangeText={handleChange("email")}
                                     onBlur={handleBlur("email")}
                                     value={values.email}
@@ -84,10 +97,7 @@ const LoginScreen = () => {
                                     <TextInput
                                         placeholder="Enter your password"
                                         placeholderTextColor="#999"
-                                        style={[
-                                            styles.input,
-                                            touched.password && errors.password ? styles.inputError : null
-                                        ]}
+                                        style={[styles.input, touched.password && errors.password ? styles.inputError : null]}
                                         secureTextEntry={showPassword}
                                         onChangeText={handleChange("password")}
                                         onBlur={handleBlur("password")}
@@ -109,23 +119,23 @@ const LoginScreen = () => {
                                     <Text style={styles.errorText}>{errors.password}</Text>
                                 )}
 
-                                {/* Login Button */}
-                                <TouchableOpacity style={styles.btnLogin} onPress={handleSubmit}>
-                                    <Text style={styles.btnText}>Log In</Text>
+                                {/* Sign Up Button */}
+                                <TouchableOpacity style={styles.btnSignUp} onPress={handleSubmit}>
+                                    <Text style={styles.btnText}>Sign Up</Text>
                                 </TouchableOpacity>
                             </View>
                         )}
                     </Formik>
 
-                    {/* Signup + Other Login Methods */}
+                    {/* Go to Login */}
                     <View>
                         <Text style={{ marginTop: 20, textAlign: "center" }}>
-                            Don’t have an account?{" "}
+                            Already have an account? {" "}
                             <Text
-                                onPress={() => navigation.navigate("SignUp")}
+                                onPress={() => navigation.navigate("Login")}
                                 style={{ color: "blue" }}
                             >
-                                Sign Up
+                                Log In
                             </Text>
                         </Text>
                     </View>
@@ -135,7 +145,7 @@ const LoginScreen = () => {
     );
 };
 
-export default LoginScreen;
+export default SignUpScreen;
 
 const styles = StyleSheet.create({
     container: {
@@ -183,13 +193,13 @@ const styles = StyleSheet.create({
     inputError: {
         borderColor: "red",
     },
-    textLogin: {
+    textTitle: {
         fontWeight: "bold",
         fontSize: 20,
         marginBottom: 20,
         textAlign: "center",
     },
-    btnLogin: {
+    btnSignUp: {
         backgroundColor: "blue",
         padding: 12,
         borderRadius: 10,

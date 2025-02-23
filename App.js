@@ -6,6 +6,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import TabScreens from './src/components/TabScreens';
 import LoginScreen from './src/screens/LoginScreen';
 import ProfileSetupScreen from './src/screens/ProfileSetupScreen';
+import SignUpScreen from './src/screens/SignUpScreen';
 
 const Stack = createStackNavigator();
 
@@ -41,6 +42,9 @@ export default function App() {
     <NavigationContainer>
       <Stack.Navigator initialRouteName={isFirstLaunch ? "ProfileSetup" : "Login"}>
         <Stack.Screen name="Login" component={LoginScreen} options={{ headerShown: false }} />
+        <Stack.Screen name="SignUp" component={SignUpScreen} options={{ headerShown: false }} />
+
+
         <Stack.Screen name="Home" component={TabScreens} options={{ headerShown: false }} />
         <Stack.Screen name="ProfileSetup" component={ProfileSetupScreen} options={{ headerShown: false }} />
       </Stack.Navigator>
