@@ -1,7 +1,8 @@
 import React from 'react';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
-import UserManagement from '../screens/UserManagement';  // Thêm màn hình quản lý người dùng
-// import BillingManagement from '../screens/BillingManagement';  // Thêm màn hình quản lý thanh toán
+import UserManagement from '../screens/admin/UserManagement'; 
+import BillingManagement from '../screens/admin/BillingManagement';  
+import AdminSetting from '../screens/admin/AdminSetting';  
 import Icon from 'react-native-vector-icons/Ionicons';
 
 const Tab = createBottomTabNavigator();
@@ -14,9 +15,11 @@ function AdminTabScreen() {
           let iconName;
 
           if (route.name === 'User Management') {
-            iconName = 'people-outline';  // Biểu tượng quản lý người dùng
+            iconName = 'people-outline';  
           } else if (route.name === 'Billing Management') {
-            iconName = 'cash-outline';  // Biểu tượng quản lý thanh toán
+            iconName = 'cash-outline';  
+          } else if (route.name === 'Admin Settings') {
+            iconName = 'settings-outline';  
           }
 
           return <Icon name={iconName} size={size} color={color} />;
@@ -27,7 +30,8 @@ function AdminTabScreen() {
       })}
     >
       <Tab.Screen name="User Management" component={UserManagement} options={{ headerShown: false }} />
-      {/* <Tab.Screen name="Billing Management" component={BillingManagement} options={{ headerShown: false }} /> */}
+      <Tab.Screen name="Billing Management" component={BillingManagement} options={{ headerShown: false }} />
+      <Tab.Screen name="Admin Settings" component={AdminSetting} options={{ headerShown: false }} />
     </Tab.Navigator>
   );
 }
