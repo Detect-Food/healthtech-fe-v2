@@ -33,6 +33,10 @@ class FoodAPI {
     };
 
 
+    getNutritionPlan = async (userId) => {
+        return UnauthorApi.get(`${this.url}/nutrition/${userId}`);
+    };
+
 
 }
 

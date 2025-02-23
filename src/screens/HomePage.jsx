@@ -1,20 +1,68 @@
-import React from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, FlatList } from 'react-native';
+import React, { useState, useEffect } from 'react';
+import { View, Text, StyleSheet, TouchableOpacity, FlatList, ScrollView } from 'react-native';
 import Icon from 'react-native-vector-icons/Ionicons';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import FoodAPI from '../api/FoodAPI';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { Checkbox } from 'react-native-paper';
 
 const HomePage = () => {
-  const nutritionData = [
-    { id: '1', amount: '157g', label: 'Protein left', icon: 'flash-outline' },
-    { id: '2', amount: '169g', label: 'Carbs left', icon: 'leaf-outline' },
-    { id: '3', amount: '48g', label: 'Fats left', icon: 'water-outline' },
-  ];
+  const [nutritionData, setNutritionData] = useState([]);
+  const [selectedDay, setSelectedDay] = useState(null);
+  const [selectedMeals, setSelectedMeals] = useState([]);
 
-  const recentlyEatenData = [
-    { id: '1', name: 'Chicken Breast', calories: '165 kcal', icon: 'nutrition-outline' },
-    { id: '2', name: 'Brown Rice', calories: '215 kcal', icon: 'nutrition-outline' },
-    { id: '3', name: 'Broccoli', calories: '55 kcal', icon: 'nutrition-outline' },
-  ];
+  const fetchNutritionPlan = async () => {
+    try {
+      const userId = await AsyncStorage.getItem('userId');
+      if (userId) {
+        const response = await FoodAPI.getNutritionPlan(userId);
+        setNutritionData(response?.data?.days);
+      }
+    } catch (error) {
+      console.error('Error fetching nutrition plan:', error);
+    }
+  };
+
+  useEffect(() => {
+    fetchNutritionPlan();
+  }, []);
+
+  const toggleMealCheck = (dayIndex, mealIndex) => {
+    const updatedMeals = [...selectedMeals];
+    const mealKey = `${dayIndex}-${mealIndex}`;
+
+    if (updatedMeals.includes(mealKey)) {
+      updatedMeals.splice(updatedMeals.indexOf(mealKey), 1);
+    } else {
+      updatedMeals.push(mealKey);
+    }
+
+    setSelectedMeals(updatedMeals);
+  };
+
+  const renderMeal = (item, dayIndex, mealIndex) => (
+    <View style={styles.mealItem} key={`${dayIndex}-${mealIndex}`}>
+      <Checkbox
+        status={selectedMeals.includes(`${dayIndex}-${mealIndex}`) ? 'checked' : 'unchecked'}
+        onPress={() => toggleMealCheck(dayIndex, mealIndex)}
+      />
+      <View style={styles.mealTextContainer}>
+        <Text style={styles.mealName}>{item.meal}</Text>
+        <Text style={styles.mealDescription}>{item.description}</Text>
+        <Text style={styles.mealCalories}>{item.calories} kcal</Text>
+      </View>
+    </View>
+  );
+
+  const renderDayItem = (item, index) => (
+    <TouchableOpacity
+      style={[styles.dayItem, selectedDay === index && styles.selectedDay]}
+      onPress={() => setSelectedDay(selectedDay === index ? null : index)}
+      key={index}
+    >
+      <Text style={styles.dayText}>{item.day}</Text>
+    </TouchableOpacity>
+  );
 
   return (
     <SafeAreaView style={styles.container}>
@@ -27,69 +75,21 @@ const HomePage = () => {
         </View>
       </View>
 
-      {/* Date Selection */}
-      <View style={styles.dateContainer}>
-        {['M', 'T', 'W', 'T', 'F', 'S', 'S'].map((day, index) => (
-          <View key={index} style={styles.dateItem}>
-            <Text style={styles.dayText}>{day}</Text>
-            <Text style={[styles.dateText, index === 5 && styles.selectedDate]}>
-              {21 + index} {/* Just an example to display dates */}
-            </Text>
-          </View>
-        ))}
-      </View>
+      {/* Date Selection (Vertical list) */}
+      <ScrollView style={styles.dateContainer}>
+        {nutritionData.map((day, index) => renderDayItem(day, index))}
+      </ScrollView>
 
-      {/* Calories left */}
-      <View style={styles.caloriesContainer}>
-        <Text style={styles.caloriesAmount}>1740</Text>
-        <Text style={styles.caloriesLabel}>Calories left</Text>
-      </View>
+      {/* Meals for Selected Day (Only shown when a day is selected) */}
+      {selectedDay !== null && (
+        <FlatList
+          data={nutritionData[selectedDay].meals}
+          renderItem={({ item, index }) => renderMeal(item, selectedDay, index)}
+          keyExtractor={(item, index) => `${selectedDay}-${index}`}
+        />
+      )}
 
-      {/* Nutrition Breakdown */}
-      <FlatList
-        data={nutritionData}
-        horizontal
-        keyExtractor={(item) => item.id}
-        renderItem={({ item }) => (
-          <View style={styles.nutritionItem}>
-            <Icon name={item.icon} size={24} color="#888" />
-            <Text style={styles.nutritionAmount}>{item.amount}</Text>
-            <Text style={styles.nutritionLabel}>{item.label}</Text>
-          </View>
-        )}
-        contentContainerStyle={styles.nutritionContainer}
-        showsHorizontalScrollIndicator={false}
-      />
 
-      {/* Recently Eaten */}
-      <View style={styles.recentContainer}>
-        <Text style={styles.recentTitle}>Recently eaten</Text>
-        {recentlyEatenData.length > 0 ? (
-          <FlatList
-            data={recentlyEatenData}
-            keyExtractor={(item) => item.id}
-            renderItem={({ item }) => (
-              <View style={styles.recentItem}>
-                <Icon name={item.icon} size={24} color="#888" />
-                <View style={styles.recentItemTextContainer}>
-                  <Text style={styles.recentItemName}>{item.name}</Text>
-                  <Text style={styles.recentItemCalories}>{item.calories}</Text>
-                </View>
-              </View>
-            )}
-          />
-        ) : (
-          <View style={styles.recentBox}>
-            <Text style={styles.recentTextBold}>You haven’t uploaded any food</Text>
-            <Text style={styles.recentText}>Start tracking Today's meals by taking a quick picture</Text>
-          </View>
-        )}
-      </View>
-
-      {/* Floating Button */}
-      <TouchableOpacity style={styles.fab}>
-        <Icon name="add-outline" size={30} color="#fff" />
-      </TouchableOpacity>
     </SafeAreaView>
   );
 };
@@ -119,113 +119,55 @@ const styles = StyleSheet.create({
     marginLeft: 5,
   },
   dateContainer: {
-    flexDirection: 'row',
-    justifyContent: 'space-around',
     marginTop: 30,
+    height: 200
   },
-  dateItem: {
+  dayItem: {
+    paddingVertical: 12,
+    paddingHorizontal: 16,
+    backgroundColor: '#f0f0f5',
+    borderRadius: 12,
+    marginBottom: 8,
     alignItems: 'center',
+  },
+  selectedDay: {
+    backgroundColor: '#2ecc71',
   },
   dayText: {
-    fontSize: 12,
-    color: '#aaa',
-  },
-  dateText: {
-    fontSize: 16,
+    fontSize: 18,
+    fontWeight: 'bold',
     color: '#333',
-    marginTop: 5,
   },
-  selectedDate: {
-    color: '#000',
-    fontWeight: 'bold',
-  },
-  caloriesContainer: {
-    backgroundColor: '#f0f0f5',
-    alignItems: 'center',
-    borderRadius: 12,
-    paddingVertical: 20,
-    marginVertical: 20,
-  },
-  caloriesAmount: {
-    fontSize: 32,
-    fontWeight: 'bold',
-  },
-  caloriesLabel: {
-    fontSize: 16,
-    color: '#666',
-  },
-  nutritionContainer: {
-    marginTop: 20,
-    paddingHorizontal: 5,
-  },
-  nutritionItem: {
-    alignItems: 'center',
-    padding: 10,
-    borderRadius: 10,
-    backgroundColor: '#fff',
-    marginHorizontal: 10,
-    elevation: 2, // Android shadow
-    shadowColor: '#000', // iOS shadow
-    shadowOpacity: 0.1,
-    shadowOffset: { width: 0, height: 1 },
-    shadowRadius: 5,
-  },
-  nutritionAmount: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    marginTop: 5,
-  },
-  nutritionLabel: {
-    fontSize: 12,
-    color: '#888',
-  },
-  recentContainer: {
-    marginTop: 30,
-  },
-  recentTitle: {
-    fontSize: 18,
-    fontWeight: 'bold',
-  },
-  recentBox: {
-    backgroundColor: '#f7f7f7',
-    padding: 15,
-    borderRadius: 10,
-    marginTop: 10,
-    alignItems: 'center',
-  },
-  recentItem: {
+  mealItem: {
     flexDirection: 'row',
     alignItems: 'center',
-    padding: 10,
+    padding: 12,
     backgroundColor: '#fff',
     borderRadius: 10,
     marginVertical: 8,
-    elevation: 2, // Android shadow
-    shadowColor: '#000', // iOS shadow
+    elevation: 2,
+    shadowColor: '#000',
     shadowOpacity: 0.1,
     shadowOffset: { width: 0, height: 1 },
     shadowRadius: 5,
   },
-  recentItemTextContainer: {
-    marginLeft: 10,
+  mealTextContainer: {
+    marginLeft: 12,
+    flexShrink: 1, // Prevent text from overflowing
   },
-  recentItemName: {
+  mealName: {
     fontSize: 16,
     fontWeight: 'bold',
+    flexWrap: 'wrap',
   },
-  recentItemCalories: {
+  mealDescription: {
     fontSize: 14,
     color: '#666',
+    flexWrap: 'wrap',
   },
-  recentTextBold: {
-    fontSize: 16,
-    fontWeight: 'bold',
-  },
-  recentText: {
+  mealCalories: {
     fontSize: 14,
-    color: '#666',
-    textAlign: 'center',
-    marginTop: 5,
+    color: '#888',
   },
   fab: {
     backgroundColor: '#4CAF50',
@@ -237,8 +179,8 @@ const styles = StyleSheet.create({
     position: 'absolute',
     right: 20,
     bottom: 30,
-    elevation: 5, // Android shadow
-    shadowColor: '#000', // iOS shadow
+    elevation: 5,
+    shadowColor: '#000',
     shadowOpacity: 0.3,
     shadowOffset: { width: 0, height: 2 },
     shadowRadius: 4,
