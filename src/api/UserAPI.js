@@ -5,8 +5,10 @@ class UserAPI {
         this.url = "/api/user";
     }
 
-
-
+    getAllUsers = async () => {
+        const response = await UnauthorApi.get(`${this.url}/get-all-users`);
+        return response.data;
+    }
 
 }
 
