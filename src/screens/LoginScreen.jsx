@@ -29,16 +29,27 @@ const LoginScreen = () => {
 
             const response = await AuthAPI.login(values.username, values.password);
 
-            if (response?.data.status === 401) {
+
+            if (response?.status === 401) {
                 setFieldError("password", "Mật khẩu không chính xác");
                 return;
-            } else if (response?.data.status === 404) {
+            } else if (response?.status === 404) {
                 setFieldError("username", "Tên người dùng không chính xác");
                 return;
-            } else {
+            } else if (response?.status === 200) {
                 await AsyncStorage.setItem('userId', response?.data?.userId);
+                console.log(response?.data?.role);
 
-                navigation.navigate("Home");
+                // Kiểm tra role và điều hướng
+                if (response?.data?.role === "User") {
+                    navigation.navigate("Home");
+                } else if (response?.data?.role === "Admin") {
+                    navigation.navigate("AdminHome");
+                } else {
+                    // Trong trường hợp role không phải "User" hoặc "Admin"
+                    setFieldError("general", "Vui lòng kiểm tra lại thông tin tài khoản.");
+                }
+
             }
         } catch (error) {
             setFieldError("general", "Đã có lỗi xảy ra. Vui lòng thử lại sau.");
