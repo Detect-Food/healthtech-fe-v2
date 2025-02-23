@@ -1,31 +1,60 @@
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, ScrollView, Modal, Image } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, ScrollView, Modal, Image, Alert } from 'react-native';
+import UserAPI from '../api/UserAPI';
+import TransactionAPI from '../api/TransactionAPI';
 
 function Billing() {
     const [isModalVisible, setIsModalVisible] = useState(false);
-    const [timer, setTimer] = useState(60); 
+    const [timer, setTimer] = useState(60);
+    const [subscription, setSubscription] = useState('');
+
+
+    const getUserDetails = async () => {
+        try {
+            const storedUserId = await AsyncStorage.getItem('userId');
+            const response = await UserAPI.getUserDetails(storedUserId);
+            if (String(response?.userDetails.subcription) === 'Premium') {
+                setSubscription('Premium');
+            } else {
+                setSubscription('Free');
+            }
+        } catch (error) {
+            console.error('Error fetching user details:', error);
+        }
+    };
 
     useEffect(() => {
+
+        getUserDetails();
+
         let interval;
         if (isModalVisible && timer > 0) {
             interval = setInterval(() => {
                 setTimer((prevTimer) => prevTimer - 1);
             }, 1000);
         } else if (timer === 0) {
-            setIsModalVisible(false); 
+            setIsModalVisible(false);
         }
 
-        return () => clearInterval(interval); 
+        return () => clearInterval(interval);
     }, [isModalVisible, timer]);
 
     const handleGetPremium = () => {
-        setIsModalVisible(true); 
-        setTimer(60); 
+        setIsModalVisible(true);
+        setTimer(60);
     };
 
-    const handleConfirmPayment = () => {
-        console.log('Payment Confirmed');
-        setIsModalVisible(false); 
+    const handleConfirmPayment = async () => {
+        const storedUserId = await AsyncStorage.getItem('userId');
+        const response = await TransactionAPI.getNewTransaction(storedUserId);
+        console.log(response);
+        if (response.status === 200) {
+            Alert.alert('Thanh toán thành công');
+        }
+        setSubscription('Premium');
+        
+        setIsModalVisible(false);
     };
 
     return (
@@ -56,9 +85,15 @@ function Billing() {
                     <Text style={styles.feature}>✔ Gợi ý các kế hoạch bữa ăn phù hợp với mục tiêu sức khỏe</Text>
                     <Text style={styles.feature}>✔ Tư vấn dinh dưỡng AI dựa trên thói quen ăn uống (Chat Bot)</Text>
                 </View>
-                <TouchableOpacity style={styles.button} onPress={handleGetPremium}>
-                    <Text style={styles.buttonText}>GET PREMIUM</Text>
-                </TouchableOpacity>
+                {subscription === 'Premium' ? (
+                    <TouchableOpacity style={styles.button}>
+                        <Text style={styles.buttonText}>Đang dùng bản premium</Text>
+                    </TouchableOpacity>
+                ) : (
+                    <TouchableOpacity style={styles.button} onPress={handleGetPremium}>
+                        <Text style={styles.buttonText}>GET PREMIUM</Text>
+                    </TouchableOpacity>
+                )}
             </View>
 
             {/* Modal Popup for Payment */}
