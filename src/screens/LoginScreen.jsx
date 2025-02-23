@@ -16,36 +16,33 @@ const LoginScreen = () => {
     const navigation = useNavigation();
     const [showPassword, setShowPassword] = useState(true);
 
-
     const handleLogin = async (values, { setFieldError }) => {
         try {
-            // Kiểm tra đầu vào
-            if (!values.password || values.password.length < 6) {
-                setFieldError("password", "Password must be at least 6 characters");
+            if (!values.username) {
+                setFieldError("username", "Tên người dùng không được để trống");
+                return;
+            }
+            if (!values.password) {
+                setFieldError("password", "Mật khẩu không được để trống");
                 return;
             }
 
-            // Gửi yêu cầu login đến API
-            const response = await AuthAPI.login(values.email, values.password);
-            console.log(response?.status);
-            console.log(response?.data);
+            const response = await AuthAPI.login(values.username, values.password);
 
-            // Kiểm tra kết quả trả về từ API
-            if (response?.status === 200 && response) {
-                // Lưu userId vào AsyncStorage
+            if (response?.data.status === 401) {
+                setFieldError("password", "Mật khẩu không chính xác");
+                return;
+            } else if (response?.data.status === 404) {
+                setFieldError("username", "Tên người dùng không chính xác");
+                return;
+            } else {
                 await AsyncStorage.setItem('userId', response?.data?.userId);
 
-                // Chuyển hướng đến trang Home nếu login thành công
                 navigation.navigate("Home");
-                
-            } else {
-                // Xử lý lỗi từ API (nếu có)
-                setFieldError("general", "Login failed. Please try again.");
             }
         } catch (error) {
-            // Xử lý lỗi nếu yêu cầu API thất bại
-            setFieldError("general", "An error occurred. Please try again later.");
-            console.error("Login Error:", error);
+            setFieldError("general", "Đã có lỗi xảy ra. Vui lòng thử lại sau.");
+            console.error("Lỗi đăng nhập:", error);
         }
     };
 
@@ -65,10 +62,10 @@ const LoginScreen = () => {
                 keyboardVerticalOffset={Platform.OS === "ios" ? 0 : 20} // Điều chỉnh khoảng cách
             >
                 <ScrollView contentContainerStyle={{ flexGrow: 1 }}>
-                    <Text style={styles.textLogin}>Log In</Text>
+                    <Text style={styles.textLogin}>Đăng nhập</Text>
 
                     <Formik
-                        initialValues={{ email: "", password: "" }}
+                        initialValues={{ username: "", password: "" }}  // Thay email thành username
                         onSubmit={handleLogin}
                     >
                         {({
@@ -80,28 +77,27 @@ const LoginScreen = () => {
                             touched,
                         }) => (
                             <View style={styles.inputForm}>
-                                {/* Email Input */}
+                                {/* Input Username */}
                                 <TextInput
-                                    placeholder="Enter your Username"
+                                    placeholder="Nhập tên người dùng"
                                     placeholderTextColor="#999"
                                     style={[
                                         styles.input,
-                                        touched.email && errors.email ? styles.inputError : null
+                                        touched.username && errors.username ? styles.inputError : null
                                     ]}
-                                    onChangeText={handleChange("email")}
-                                    onBlur={handleBlur("email")}
-                                    value={values.email}
-                                    keyboardType="email-address"
+                                    onChangeText={handleChange("username")}  // Dùng username
+                                    onBlur={handleBlur("username")}
+                                    value={values.username}  // Dùng username
                                     autoCapitalize="none"
                                 />
-                                {touched.email && errors.email && (
-                                    <Text style={styles.errorText}>{errors.email}</Text>
+                                {touched.username && errors.username && (
+                                    <Text style={styles.errorText}>{errors.username}</Text>
                                 )}
 
-                                {/* Password Input */}
+                                {/* Input Mật khẩu */}
                                 <View style={styles.inputPassword}>
                                     <TextInput
-                                        placeholder="Enter your password"
+                                        placeholder="Nhập mật khẩu"
                                         placeholderTextColor="#999"
                                         style={[
                                             styles.input,
@@ -128,23 +124,23 @@ const LoginScreen = () => {
                                     <Text style={styles.errorText}>{errors.password}</Text>
                                 )}
 
-                                {/* Login Button */}
+                                {/* Nút Đăng nhập */}
                                 <TouchableOpacity style={styles.btnLogin} onPress={handleSubmit}>
-                                    <Text style={styles.btnText}>Log In</Text>
+                                    <Text style={styles.btnText}>Đăng nhập</Text>
                                 </TouchableOpacity>
                             </View>
                         )}
                     </Formik>
 
-                    {/* Signup + Other Login Methods */}
+                    {/* Đăng ký + Các phương thức đăng nhập khác */}
                     <View style={styles.signupContainer}>
                         <Text style={{ marginTop: 20, textAlign: "center" }}>
-                            Don’t have an account?{" "}
+                            Chưa có tài khoản?{" "}
                             <Text
                                 onPress={() => navigation.navigate("SignUp")}
                                 style={{ color: "blue" }}
                             >
-                                Sign Up
+                                Đăng ký
                             </Text>
                         </Text>
                     </View>
@@ -162,9 +158,8 @@ const styles = StyleSheet.create({
     },
     containerImage: {
         alignItems: "center",
-        height: 180,
+        height: 280,
         width: width - 100,
-        marginTop: 50,
         marginBottom: 10,
         marginHorizontal: 50,
     },

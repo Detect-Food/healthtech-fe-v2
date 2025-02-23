@@ -11,7 +11,7 @@ const { width } = Dimensions.get("window");
 const SignUpScreen = () => {
     const navigation = useNavigation();
     const [showPassword, setShowPassword] = useState(true);
-    const [notificationMessage, setNotificationMessage] = useState(""); // State to store the notification message
+    const [notificationMessage, setNotificationMessage] = useState(""); // State để lưu thông báo
 
     const handleSignUp = async (values, { setFieldError }) => {
         // Lấy dữ liệu từ AsyncStorage
@@ -22,15 +22,15 @@ const SignUpScreen = () => {
 
         // Kiểm tra dữ liệu form
         if (!values.username) {
-            setFieldError("username", "Username is required");
+            setFieldError("username", "Tên người dùng là bắt buộc");
             return;
         }
         if (!values.email || !values.email.includes("@")) {
-            setFieldError("email", "Valid email is required");
+            setFieldError("email", "Email hợp lệ là bắt buộc");
             return;
         }
         if (!values.password || values.password.length < 6) {
-            setFieldError("password", "Password must be at least 6 characters");
+            setFieldError("password", "Mật khẩu phải có ít nhất 6 ký tự");
             return;
         }
 
@@ -47,28 +47,28 @@ const SignUpScreen = () => {
 
         try {
             const response = await AuthAPI.signUp(body);
-            console.log("Response Status Code:", response?.status);
-            console.log("Response Data:", response?.data?.message);
+            console.log("Mã trạng thái phản hồi:", response?.status);
+            console.log("Dữ liệu phản hồi:", response?.data?.message);
 
             // Kiểm tra kết quả đăng ký với status 201
             if (response?.status === 201) {
                 // Hiển thị thông báo thành công
-                setNotificationMessage(response?.data?.message || "Registration successful!");
+                setNotificationMessage(response?.data?.message || "Đăng ký thành công!");
 
-                // Thêm delay 2 giây trước khi chuyển đến màn hình Login
+                // Thêm delay 2 giây trước khi chuyển đến màn hình Đăng nhập
                 setTimeout(() => {
                     navigation.navigate("Login");
-                }, 1300); // Delay 2000ms (2 giây)
+                }, 1300); // Delay 1300ms (1.3 giây)
             } else {
-                setFieldError("general", "Registration failed. Please try again.");
-                setNotificationMessage("Registration failed. Please try again.");
+                setFieldError("general", "Đăng ký không thành công. Vui lòng thử lại.");
+                setNotificationMessage("Đăng ký không thành công. Vui lòng thử lại.");
             }
 
         } catch (error) {
             // Xử lý lỗi API
-            setFieldError("general", "An error occurred. Please try again later.");
-            setNotificationMessage("An error occurred. Please try again later.");
-            console.error("Sign Up Error:", error);
+            setFieldError("general", "Đã có lỗi xảy ra. Vui lòng thử lại sau.");
+            setNotificationMessage("Đã có lỗi xảy ra. Vui lòng thử lại sau.");
+            console.error("Lỗi đăng ký:", error);
         }
     };
 
@@ -81,15 +81,15 @@ const SignUpScreen = () => {
             <KeyboardAvoidingView behavior={Platform.OS === "ios" ? "padding" : "height"} style={styles.containerForm}>
                 <ScrollView contentContainerStyle={{ flexGrow: 1 }}>
                     <View style={{ marginTop: 20 }}>
-                        <Text style={styles.textTitle}>Sign Up</Text>
+                        <Text style={styles.textTitle}>Đăng ký</Text>
                     </View>
 
                     <Formik initialValues={{ username: "", email: "", password: "" }} onSubmit={handleSignUp}>
                         {({ handleChange, handleBlur, handleSubmit, values, errors, touched }) => (
                             <View style={styles.inputForm}>
-                                {/* Username Input */}
+                                {/* Nhập tên người dùng */}
                                 <TextInput
-                                    placeholder="Enter your username"
+                                    placeholder="Nhập tên người dùng"
                                     placeholderTextColor="#999"
                                     style={[styles.input, touched.username && errors.username ? styles.inputError : null]}
                                     onChangeText={handleChange("username")}
@@ -99,9 +99,9 @@ const SignUpScreen = () => {
                                 />
                                 {touched.username && errors.username && <Text style={styles.errorText}>{errors.username}</Text>}
 
-                                {/* Email Input */}
+                                {/* Nhập email */}
                                 <TextInput
-                                    placeholder="Enter your email"
+                                    placeholder="Nhập email của bạn"
                                     placeholderTextColor="#999"
                                     style={[styles.input, touched.email && errors.email ? styles.inputError : null]}
                                     onChangeText={handleChange("email")}
@@ -112,10 +112,10 @@ const SignUpScreen = () => {
                                 />
                                 {touched.email && errors.email && <Text style={styles.errorText}>{errors.email}</Text>}
 
-                                {/* Password Input */}
+                                {/* Nhập mật khẩu */}
                                 <View style={styles.inputPassword}>
                                     <TextInput
-                                        placeholder="Enter your password"
+                                        placeholder="Nhập mật khẩu của bạn"
                                         placeholderTextColor="#999"
                                         style={[styles.input, touched.password && errors.password ? styles.inputError : null]}
                                         secureTextEntry={showPassword}
@@ -130,25 +130,25 @@ const SignUpScreen = () => {
                                 </View>
                                 {touched.password && errors.password && <Text style={styles.errorText}>{errors.password}</Text>}
 
-                                {/* Sign Up Button */}
+                                {/* Nút Đăng ký */}
                                 <TouchableOpacity style={styles.btnSignUp} onPress={handleSubmit}>
-                                    <Text style={styles.btnText}>Sign Up</Text>
+                                    <Text style={styles.btnText}>Đăng ký</Text>
                                 </TouchableOpacity>
                             </View>
                         )}
                     </Formik>
 
-                    {/* Display Notification Message */}
+                    {/* Hiển thị thông báo */}
                     {notificationMessage ? (
                         <Text style={styles.notificationText}>{notificationMessage}</Text>
                     ) : null}
 
-                    {/* Go to Login */}
+                    {/* Đi đến màn hình Đăng nhập */}
                     <View>
                         <Text style={{ marginTop: 20, textAlign: "center" }}>
-                            Already have an account?{" "}
+                            Đã có tài khoản?{" "}
                             <Text onPress={() => navigation.navigate("Login")} style={{ color: "blue" }}>
-                                Log In
+                                Đăng nhập
                             </Text>
                         </Text>
                     </View>
@@ -164,9 +164,9 @@ const styles = StyleSheet.create({
     },
     containerImage: {
         alignItems: "center",
-        height: 180,
+        height: 280,
         width: width - 100,
-        marginTop: 50,
+        // marginTop: 50,
         marginBottom: 10,
         marginHorizontal: 50,
     },
