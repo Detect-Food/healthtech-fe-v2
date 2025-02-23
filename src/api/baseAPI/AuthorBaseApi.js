@@ -1,13 +1,8 @@
 import axios from "axios";
 import { Alert } from "react-native";
 import { useNavigation } from "@react-navigation/native";
+import apiConfig from "../../../config";
 
-const apiConfig = {
-  baseURL: "https://healthtech-be.vercel.app",
-  headers: {
-    "Content-Type": "application/json",
-  },
-};
 
 const axiosClient = axios.create({
   baseURL: apiConfig.baseURL,

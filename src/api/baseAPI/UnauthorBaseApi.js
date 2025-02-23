@@ -1,11 +1,6 @@
 import axios from "axios";
-
-const apiConfig = {
-  baseURL: "http://192.168.1.107:5000",
-  headers: {
-    "Content-Type": "application/json",
-  },
-};
+import apiConfig from "../../../config.js";
+import AsyncStorage from '@react-native-async-storage/async-storage'; 
 
 const axiosClient = axios.create({
   baseURL: apiConfig.baseURL,
@@ -16,11 +11,16 @@ axiosClient.interceptors.response.use(
   (response) => {
     if (response !== undefined && response.data !== undefined) {
       // Get all response
-      return response.data;
+      return response;
     }
     return response;
   },
   async (error) => {
+    // // Refresh token is expired
+    // if (error.response && error.response.status === 404) {
+    //   await AsyncStorage.clear(); 
+    //   throw new Error('Token expired or not found'); 
+    // }
 
     // Unauthorized
     if (error.response && error.response.status === 401) {
@@ -33,5 +33,8 @@ axiosClient.interceptors.response.use(
   }
 );
 
+export const get = (url, params = {}) => {
+  return axiosClient.get(url, { params });
+};
 
 export default axiosClient;

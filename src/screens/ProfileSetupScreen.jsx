@@ -1,218 +1,184 @@
+import React, { useState } from 'react';
 import {
-  Dimensions, Image, StyleSheet, Text, View, TouchableOpacity,
-  TextInput, KeyboardAvoidingView, Platform, ScrollView,
-  SafeAreaView
-} from "react-native";
-import React, { useState } from "react";
-import { Ionicons } from "@expo/vector-icons";
-import { useNavigation } from "@react-navigation/native";
-import { Formik } from "formik";
+  View,
+  Text,
+  TextInput,
+  StyleSheet,
+  TouchableOpacity,
+  KeyboardAvoidingView,
+  ScrollView,
+  Platform
+} from 'react-native';
+import { RadioButton } from 'react-native-paper';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
-const { width } = Dimensions.get("window");
+const ProfileSetupScreen = ({ navigation }) => {
+  const [age, setAge] = useState('16');
+  const [gender, setGender] = useState('Male');
+  const [height, setHeight] = useState('165');
+  const [weight, setWeight] = useState('52');
 
-const SignUpScreen = () => {
-  const navigation = useNavigation();
-  const [showPassword, setShowPassword] = useState(true);
-
-  const handleSignUp = async (values, { setFieldError }) => {
-    if (!values.username) {
-      setFieldError("username", "Username is required");
-      return;
+  const saveToStorage = async () => {
+    try {
+      await AsyncStorage.setItem('age', age);
+      await AsyncStorage.setItem('gender', gender);
+      await AsyncStorage.setItem('height', height);
+      await AsyncStorage.setItem('weight', weight);
+    } catch (error) {
+      console.error('Lỗi khi lưu dữ liệu:', error);
     }
-    if (!values.email || !values.email.includes("@")) {
-      setFieldError("email", "Valid email is required");
-      return;
-    }
-    if (!values.password || values.password.length < 6) {
-      setFieldError("password", "Password must be at least 6 characters");
-      return;
-    }
-    console.log("User registered:", values);
-    navigation.navigate("Login");
   };
 
+  const handleNext = async () => {
+    await saveToStorage();
+
+    try {
+      const storedAge = await AsyncStorage.getItem('age');
+      const storedGender = await AsyncStorage.getItem('gender');
+      const storedHeight = await AsyncStorage.getItem('height');
+      const storedWeight = await AsyncStorage.getItem('weight');
+
+      console.log('Dữ liệu đã lưu:');
+      console.log('Age:', storedAge);
+      console.log('Gender:', storedGender);
+      console.log('Height:', storedHeight);
+      console.log('Weight:', storedWeight);
+    } catch (error) {
+      console.error('Lỗi khi lấy dữ liệu từ AsyncStorage:', error);
+    }
+
+    navigation.navigate('Login');
+  };
+
+
   return (
-    <SafeAreaView style={styles.container}>
-      <View style={styles.containerImage}>
-        <Image
-          source={require("../../assets/images/logo.png")}
-          resizeMode="center"
-          style={{ height: "100%", width: "100%" }}
-        />
-      </View>
+    <KeyboardAvoidingView
+      style={styles.container}
+      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+      keyboardVerticalOffset={10} // Điều chỉnh giá trị này nếu cần
+    >
+      <ScrollView contentContainerStyle={styles.scrollContainer}>
+        <View style={styles.header}>
+          <Text style={styles.title}>Profile Setup</Text>
+          <Text style={styles.subtitle}>Please provide your details to calibrate your custom plan.</Text>
+        </View>
 
-      <KeyboardAvoidingView
-        behavior={Platform.OS === "ios" ? "padding" : "height"}
-        style={styles.containerForm}
-      >
-        <ScrollView contentContainerStyle={{ flexGrow: 1 }}>
-          <View style={{ marginTop: 20 }}>
-            <Text style={styles.textTitle}>Sign Up</Text>
-          </View>
+        <View style={styles.formContainer}>
+          <Text style={styles.label}>Age</Text>
+          <TextInput
+            style={styles.input}
+            keyboardType="numeric"
+            value={age}
+            onChangeText={setAge}
+          />
 
-          <Formik
-            initialValues={{ username: "", email: "", password: "" }}
-            onSubmit={handleSignUp}
-          >
-            {({
-              handleChange,
-              handleBlur,
-              handleSubmit,
-              values,
-              errors,
-              touched,
-            }) => (
-              <View style={styles.inputForm}>
-                {/* Username Input */}
-                <TextInput
-                  placeholder="Enter your username"
-                  placeholderTextColor="#999"
-                  style={[styles.input, touched.username && errors.username ? styles.inputError : null]}
-                  onChangeText={handleChange("username")}
-                  onBlur={handleBlur("username")}
-                  value={values.username}
-                  autoCapitalize="none"
-                />
-                {touched.username && errors.username && (
-                  <Text style={styles.errorText}>{errors.username}</Text>
-                )}
-
-                {/* Email Input */}
-                <TextInput
-                  placeholder="Enter your email"
-                  placeholderTextColor="#999"
-                  style={[styles.input, touched.email && errors.email ? styles.inputError : null]}
-                  onChangeText={handleChange("email")}
-                  onBlur={handleBlur("email")}
-                  value={values.email}
-                  keyboardType="email-address"
-                  autoCapitalize="none"
-                />
-                {touched.email && errors.email && (
-                  <Text style={styles.errorText}>{errors.email}</Text>
-                )}
-
-                {/* Password Input */}
-                <View style={styles.inputPassword}>
-                  <TextInput
-                    placeholder="Enter your password"
-                    placeholderTextColor="#999"
-                    style={[styles.input, touched.password && errors.password ? styles.inputError : null]}
-                    secureTextEntry={showPassword}
-                    onChangeText={handleChange("password")}
-                    onBlur={handleBlur("password")}
-                    value={values.password}
-                    autoCapitalize="none"
-                  />
-                  <TouchableOpacity
-                    onPress={() => setShowPassword(!showPassword)}
-                    style={styles.eyeButton}
-                  >
-                    <Ionicons
-                      name={showPassword ? "eye-outline" : "eye-off-outline"}
-                      size={24}
-                      color="gray"
-                    />
-                  </TouchableOpacity>
-                </View>
-                {touched.password && errors.password && (
-                  <Text style={styles.errorText}>{errors.password}</Text>
-                )}
-
-                {/* Sign Up Button */}
-                <TouchableOpacity style={styles.btnSignUp} onPress={handleSubmit}>
-                  <Text style={styles.btnText}>Sign Up</Text>
-                </TouchableOpacity>
+          <Text style={styles.label}>Gender</Text>
+          <View style={styles.radioContainer}>
+            <RadioButton.Group onValueChange={setGender} value={gender}>
+              <View style={styles.radioItem}>
+                <RadioButton value="Male" /><Text>Male</Text>
               </View>
-            )}
-          </Formik>
-
-          {/* Go to Login */}
-          <View>
-            <Text style={{ marginTop: 20, textAlign: "center" }}>
-              Already have an account? {" "}
-              <Text
-                onPress={() => navigation.navigate("Login")}
-                style={{ color: "blue" }}
-              >
-                Log In
-              </Text>
-            </Text>
+              <View style={styles.radioItem}>
+                <RadioButton value="Female" /><Text>Female</Text>
+              </View>
+              <View style={styles.radioItem}>
+                <RadioButton value="Other" /><Text>Other</Text>
+              </View>
+            </RadioButton.Group>
           </View>
-        </ScrollView>
-      </KeyboardAvoidingView>
-    </SafeAreaView>
+
+          <Text style={styles.label}>Height (cm)</Text>
+          <TextInput
+            style={styles.input}
+            keyboardType="numeric"
+            value={height}
+            onChangeText={setHeight}
+          />
+
+          <Text style={styles.label}>Weight (kg)</Text>
+          <TextInput
+            style={styles.input}
+            keyboardType="numeric"
+            value={weight}
+            onChangeText={setWeight}
+          />
+        </View>
+
+        <TouchableOpacity style={styles.nextButton} onPress={handleNext}>
+          <Text style={styles.nextButtonText}>Next</Text>
+        </TouchableOpacity>
+      </ScrollView>
+    </KeyboardAvoidingView>
   );
 };
-
-export default SignUpScreen;
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    backgroundColor: '#f7f7f7',
   },
-  containerImage: {
-    alignItems: "center",
-    height: 280,
-    width: width - 100,
-    marginTop: 50,
-    marginBottom: 10,
-    marginHorizontal: 50,
+  scrollContainer: {
+    flexGrow: 1,
+    padding: 20,
   },
-  containerForm: {
-    borderTopStartRadius: 30,
-    borderTopEndRadius: 30,
+  header: {
+    marginTop: 40,
+    alignItems: 'center',
+  },
+  title: {
+    fontSize: 32,
+    fontWeight: 'bold',
+    marginBottom: 8,
+    color: '#333',
+    textAlign: 'center',
+  },
+  subtitle: {
+    fontSize: 16,
+    color: '#555',
+    textAlign: 'center',
+  },
+  formContainer: {
     flex: 1,
-    backgroundColor: "white",
-    width: width,
+    justifyContent: 'center',
   },
-  inputForm: {
-    marginTop: 20,
-    marginHorizontal: 20,
+  label: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: '#333',
+    marginBottom: 5,
   },
   input: {
-    marginBottom: 20,
-    width: width - 40,
-    height: 50,
-    borderWidth: 0.5,
-    borderColor: "gray",
+    backgroundColor: '#fff',
+    borderWidth: 1,
+    borderColor: '#ddd',
     borderRadius: 10,
-    paddingLeft: 20,
-    color: "black",
-  },
-  inputPassword: {
-    flexDirection: "row",
-    alignItems: "center",
-    position: "relative",
-  },
-  eyeButton: {
-    position: "absolute",
-    right: 15,
-    top: 15,
-  },
-  inputError: {
-    borderColor: "red",
-  },
-  textTitle: {
-    fontWeight: "bold",
-    fontSize: 20,
+    padding: 10,
+    fontSize: 16,
     marginBottom: 20,
-    textAlign: "center",
   },
-  btnSignUp: {
-    backgroundColor: "blue",
-    padding: 12,
+  radioContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginBottom: 20,
+  },
+  radioItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  nextButton: {
+    backgroundColor: '#000',
+    paddingVertical: 15,
     borderRadius: 10,
-    marginTop: 20,
+    alignItems: 'center',
+    justifyContent: 'center',
+    elevation: 4,
+    marginBottom: 20, // Để tránh bị che bởi bàn phím
   },
-  btnText: {
-    color: "white",
-    textAlign: "center",
-    fontWeight: "bold",
+  nextButtonText: {
+    color: '#fff',
     fontSize: 18,
-  },
-  errorText: {
-    color: "red",
-    marginBottom: 10,
+    fontWeight: 'bold',
   },
 });
+
+export default ProfileSetupScreen;

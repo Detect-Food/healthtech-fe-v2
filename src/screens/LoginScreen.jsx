@@ -1,12 +1,13 @@
 import {
     Dimensions, Image, StyleSheet, Text, View, TouchableOpacity,
     TextInput, KeyboardAvoidingView, Platform, ScrollView,
-    SafeAreaView
+    SafeAreaView, Keyboard
 } from "react-native";
 import React, { useState } from "react";
 import { Ionicons } from "@expo/vector-icons";
 import { useNavigation } from "@react-navigation/native";
 import { Formik } from "formik";
+import AuthAPI from '../api/AuthAPI';
 
 const { width } = Dimensions.get("window");
 
@@ -15,19 +16,34 @@ const LoginScreen = () => {
     const [showPassword, setShowPassword] = useState(true);
 
     const handleLogin = async (values, { setFieldError }) => {
+        try {
+            // Kiểm tra đầu vào
+            if (!values.email || !values.email.includes("@")) {
+                setFieldError("email", "Valid email is required");
+                return;
+            }
+            if (!values.password || values.password.length < 6) {
+                setFieldError("password", "Password must be at least 6 characters");
+                return;
+            }
 
+            // Gửi yêu cầu login đến API
+            const response = await AuthAPI.login(values.email, values.password);
 
-        if (values.email !== "dev") {
-            setFieldError("email", "Email is incorrect");
-        }
-        if (values.password !== "123") {
-            setFieldError("password", "Password is incorrect");
-        }
-        if (values.email === "dev" && values.password === "123") {
-            navigation.navigate("Home");
+            // Kiểm tra kết quả trả về từ API
+            if (response && response.data && response.data.success) {
+                // Chuyển hướng đến trang Home nếu login thành công
+                navigation.navigate("Home");
+            } else {
+                // Xử lý lỗi từ API (nếu có)
+                setFieldError("general", "Login failed. Please try again.");
+            }
+        } catch (error) {
+            // Xử lý lỗi nếu yêu cầu API thất bại
+            setFieldError("general", "An error occurred. Please try again later.");
+            console.error("Login Error:", error);
         }
     };
-
 
     return (
         <SafeAreaView style={styles.container}>
@@ -42,11 +58,10 @@ const LoginScreen = () => {
             <KeyboardAvoidingView
                 behavior={Platform.OS === "ios" ? "padding" : "height"}
                 style={styles.containerForm}
+                keyboardVerticalOffset={Platform.OS === "ios" ? 0 : 20} // Điều chỉnh khoảng cách
             >
                 <ScrollView contentContainerStyle={{ flexGrow: 1 }}>
-                    <View style={{ marginTop: 20 }}>
-                        <Text style={styles.textLogin}>Log In</Text>
-                    </View>
+                    <Text style={styles.textLogin}>Log In</Text>
 
                     <Formik
                         initialValues={{ email: "", password: "" }}
@@ -118,7 +133,7 @@ const LoginScreen = () => {
                     </Formik>
 
                     {/* Signup + Other Login Methods */}
-                    <View>
+                    <View style={styles.signupContainer}>
                         <Text style={{ marginTop: 20, textAlign: "center" }}>
                             Don’t have an account?{" "}
                             <Text
@@ -143,7 +158,7 @@ const styles = StyleSheet.create({
     },
     containerImage: {
         alignItems: "center",
-        height: 280,
+        height: 180,
         width: width - 100,
         marginTop: 50,
         marginBottom: 10,
@@ -155,10 +170,10 @@ const styles = StyleSheet.create({
         flex: 1,
         backgroundColor: "white",
         width: width,
+        padding: 20,
     },
     inputForm: {
         marginTop: 20,
-        marginHorizontal: 20,
     },
     input: {
         marginBottom: 20,
@@ -205,4 +220,8 @@ const styles = StyleSheet.create({
         color: "red",
         marginBottom: 10,
     },
+    signupContainer: {
+        marginTop: 20,
+        alignItems: "center",
+    }
 });
