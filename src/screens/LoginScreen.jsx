@@ -8,6 +8,7 @@ import { Ionicons } from "@expo/vector-icons";
 import { useNavigation } from "@react-navigation/native";
 import { Formik } from "formik";
 import AuthAPI from '../api/AuthAPI';
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 const { width } = Dimensions.get("window");
 
@@ -15,13 +16,10 @@ const LoginScreen = () => {
     const navigation = useNavigation();
     const [showPassword, setShowPassword] = useState(true);
 
+
     const handleLogin = async (values, { setFieldError }) => {
         try {
             // Kiểm tra đầu vào
-            if (!values.email || !values.email.includes("@")) {
-                setFieldError("email", "Valid email is required");
-                return;
-            }
             if (!values.password || values.password.length < 6) {
                 setFieldError("password", "Password must be at least 6 characters");
                 return;
@@ -29,11 +27,17 @@ const LoginScreen = () => {
 
             // Gửi yêu cầu login đến API
             const response = await AuthAPI.login(values.email, values.password);
+            console.log(response?.status);
+            console.log(response?.data);
 
             // Kiểm tra kết quả trả về từ API
-            if (response && response.data && response.data.success) {
+            if (response?.status === 200 && response) {
+                // Lưu userId vào AsyncStorage
+                await AsyncStorage.setItem('userId', response?.data?.userId);
+
                 // Chuyển hướng đến trang Home nếu login thành công
                 navigation.navigate("Home");
+                
             } else {
                 // Xử lý lỗi từ API (nếu có)
                 setFieldError("general", "Login failed. Please try again.");
@@ -78,7 +82,7 @@ const LoginScreen = () => {
                             <View style={styles.inputForm}>
                                 {/* Email Input */}
                                 <TextInput
-                                    placeholder="Enter your email"
+                                    placeholder="Enter your Username"
                                     placeholderTextColor="#999"
                                     style={[
                                         styles.input,

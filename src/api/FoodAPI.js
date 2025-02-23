@@ -11,6 +11,15 @@ class FoodAPI {
     //   }
 
     genFood = async (data) => {
+        console.log(data);
+        // {
+        //     "age": 17, 
+        //     "weight": 52,
+        //      "height": 165, 
+        //      "gender": "Male",
+        //       "note": "khong an ca"
+        // }
+
         return UnauthorApi.post(`${this.url}/generate-meal-plan`, data);
     };
 
