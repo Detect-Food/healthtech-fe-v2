@@ -10,6 +10,7 @@ import {
   Platform
 } from 'react-native';
 import { RadioButton } from 'react-native-paper';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const ProfileSetupScreen = ({ navigation }) => {
   const [age, setAge] = useState('16');
@@ -17,10 +18,38 @@ const ProfileSetupScreen = ({ navigation }) => {
   const [height, setHeight] = useState('165');
   const [weight, setWeight] = useState('52');
 
+  const saveToStorage = async () => {
+    try {
+      await AsyncStorage.setItem('age', age);
+      await AsyncStorage.setItem('gender', gender);
+      await AsyncStorage.setItem('height', height);
+      await AsyncStorage.setItem('weight', weight);
+    } catch (error) {
+      console.error('Lỗi khi lưu dữ liệu:', error);
+    }
+  };
+
   const handleNext = async () => {
     await saveToStorage();
+
+    try {
+      const storedAge = await AsyncStorage.getItem('age');
+      const storedGender = await AsyncStorage.getItem('gender');
+      const storedHeight = await AsyncStorage.getItem('height');
+      const storedWeight = await AsyncStorage.getItem('weight');
+
+      console.log('Dữ liệu đã lưu:');
+      console.log('Age:', storedAge);
+      console.log('Gender:', storedGender);
+      console.log('Height:', storedHeight);
+      console.log('Weight:', storedWeight);
+    } catch (error) {
+      console.error('Lỗi khi lấy dữ liệu từ AsyncStorage:', error);
+    }
+
     navigation.navigate('Login');
   };
+
 
   return (
     <KeyboardAvoidingView
