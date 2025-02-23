@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, FlatList, TouchableOpacity, Alert, Modal, Button } from 'react-native';
-import UserAPI from '../api/UserAPI';
+import UserAPI from '../../api/UserAPI';
 
 function UserManagement() {
     const [users, setUsers] = useState([]);

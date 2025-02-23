@@ -9,6 +9,11 @@ class TransactionAPI {
         const response = await UnauthorApi.post(`${this.url}/add-transaction`, { id });
         return response?.data;
     }
+    getAllTransactions = async () => {
+        const response = await UnauthorApi.get(`${this.url}/get-all-transactions`);
+        return response?.data;
+    }
+
 
 }
 
