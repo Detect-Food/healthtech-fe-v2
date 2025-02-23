@@ -12,10 +12,10 @@ export default function App() {
 
   return (
     <NavigationContainer>
-      <Stack.Navigator initialRouteName={LoginScreen}>
+      <Stack.Navigator initialRouteName={"ProfileSetup"}>
         <Stack.Screen name="Login" component={LoginScreen} options={{ headerShown: false }} />
         <Stack.Screen name="Home" component={TabScreens} options={{ headerShown: false }} />
-        <Stack.Screen name="Profile" component={ProfileSetupScreen} options={{ headerShown: false }} />
+        <Stack.Screen name="ProfileSetup" component={ProfileSetupScreen} options={{ headerShown: false }} />
       </Stack.Navigator>
       <StatusBar style="auto" />
     </NavigationContainer>

@@ -1,24 +1,21 @@
-import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, SafeAreaView } from 'react-native';
-import { Picker } from '@react-native-picker/picker';
+import React, { useState } from 'react';
+import {
+  View,
+  Text,
+  TextInput,
+  StyleSheet,
+  TouchableOpacity,
+  KeyboardAvoidingView,
+  ScrollView,
+  Platform
+} from 'react-native';
+import { RadioButton } from 'react-native-paper';
 
 const ProfileSetupScreen = ({ navigation }) => {
-  const [month, setMonth] = useState('January');
-  const [day, setDay] = useState('01');
-  const [year, setYear] = useState('2008');
+  const [age, setAge] = useState('16');
   const [gender, setGender] = useState('Male');
-  const [height, setHeight] = useState(165);
-  const [weight, setWeight] = useState(52);
-
-  const months = [
-    'January', 'February', 'March', 'April', 'May', 'June',
-    'July', 'August', 'September', 'October', 'November', 'December'
-  ];
-
-  const genders = ['Male', 'Female', 'Other'];
-
-  const currentYear = new Date().getFullYear();
-  const years = Array.from({ length: currentYear - 1899 }, (_, i) => 1900 + i);
+  const [height, setHeight] = useState('165');
+  const [weight, setWeight] = useState('52');
 
   const handleNext = async () => {
     await saveToStorage();
@@ -26,112 +23,74 @@ const ProfileSetupScreen = ({ navigation }) => {
   };
 
   return (
-    <SafeAreaView style={styles.container}>
-      <View style={styles.header}>
-        <Text style={styles.title}>Profile Setup</Text>
-        <Text style={styles.subtitle}>Please provide your details to calibrate your custom plan.</Text>
-      </View>
+    <KeyboardAvoidingView
+      style={styles.container}
+      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+      keyboardVerticalOffset={10} // Điều chỉnh giá trị này nếu cần
+    >
+      <ScrollView contentContainerStyle={styles.scrollContainer}>
+        <View style={styles.header}>
+          <Text style={styles.title}>Profile Setup</Text>
+          <Text style={styles.subtitle}>Please provide your details to calibrate your custom plan.</Text>
+        </View>
 
-      <View style={styles.pickerContainer}>
-        <Text style={styles.label}>Birth Date</Text>
-        <View style={styles.row}>
-          <View style={styles.pickerWrapper}>
-            <Picker
-              selectedValue={month}
-              onValueChange={setMonth}
-              style={styles.picker}
-              itemStyle={styles.pickerItem}
-            >
-              {months.map((month, index) => (
-                <Picker.Item key={index} label={month} value={month} />
-              ))}
-            </Picker>
+        <View style={styles.formContainer}>
+          <Text style={styles.label}>Age</Text>
+          <TextInput
+            style={styles.input}
+            keyboardType="numeric"
+            value={age}
+            onChangeText={setAge}
+          />
+
+          <Text style={styles.label}>Gender</Text>
+          <View style={styles.radioContainer}>
+            <RadioButton.Group onValueChange={setGender} value={gender}>
+              <View style={styles.radioItem}>
+                <RadioButton value="Male" /><Text>Male</Text>
+              </View>
+              <View style={styles.radioItem}>
+                <RadioButton value="Female" /><Text>Female</Text>
+              </View>
+              <View style={styles.radioItem}>
+                <RadioButton value="Other" /><Text>Other</Text>
+              </View>
+            </RadioButton.Group>
           </View>
 
-          <View style={styles.pickerWrapper}>
-            <Picker
-              selectedValue={day}
-              onValueChange={setDay}
-              style={styles.picker}
-              itemStyle={styles.pickerItem}
-            >
-              {[...Array(31).keys()].map((i) => (
-                <Picker.Item key={i} label={`${i + 1}`} value={`${i + 1}`} />
-              ))}
-            </Picker>
-          </View>
+          <Text style={styles.label}>Height (cm)</Text>
+          <TextInput
+            style={styles.input}
+            keyboardType="numeric"
+            value={height}
+            onChangeText={setHeight}
+          />
 
-          <View style={styles.pickerWrapper}>
-            <Picker
-              selectedValue={year}
-              onValueChange={setYear}
-              style={styles.picker}
-              itemStyle={styles.pickerItem}
-            >
-              {years.map((year, index) => (
-                <Picker.Item key={index} label={`${year}`} value={`${year.toString()}`} />
-              ))}
-            </Picker>
-          </View>
+          <Text style={styles.label}>Weight (kg)</Text>
+          <TextInput
+            style={styles.input}
+            keyboardType="numeric"
+            value={weight}
+            onChangeText={setWeight}
+          />
         </View>
 
-        <Text style={styles.label}>Gender</Text>
-        <View style={styles.pickerWrapper1}>
-          <Picker
-            selectedValue={gender}
-            onValueChange={setGender}
-            style={styles.picker}
-            itemStyle={styles.pickerItem}
-          >
-            {genders.map((gender, index) => (
-              <Picker.Item key={index} label={gender} value={gender} />
-            ))}
-          </Picker>
-        </View>
-
-        <Text style={styles.label}>Height</Text>
-        <View style={styles.pickerWrapper1}>
-          <Picker
-            selectedValue={`${height}`}
-            onValueChange={(itemValue) => setHeight(parseInt(itemValue))}
-            style={styles.picker}
-            itemStyle={styles.pickerItem}
-          >
-            {[...Array(50).keys()].map((i) => (
-              <Picker.Item key={i} label={`${165 + i} cm`} value={`${165 + i}`} />
-
-            ))}
-          </Picker>
-        </View>
-
-        <Text style={styles.label}>Weight</Text>
-        <View style={styles.pickerWrapper1}>
-          <Picker
-            selectedValue={`${weight}`}
-            onValueChange={(itemValue) => setWeight(parseInt(itemValue))}
-            style={styles.picker}
-            itemStyle={styles.pickerItem}
-          >
-            {[...Array(50).keys()].map((i) => (
-              <Picker.Item key={i} label={`${52 + i} kg`} value={`${52 + i}`} />
-
-            ))}
-          </Picker>
-        </View>
-      </View>
-
-      <TouchableOpacity style={styles.nextButton} onPress={handleNext}>
-        <Text style={styles.nextButtonText}>Next</Text>
-      </TouchableOpacity>
-    </SafeAreaView>
+        <TouchableOpacity style={styles.nextButton} onPress={handleNext}>
+          <Text style={styles.nextButtonText}>Next</Text>
+        </TouchableOpacity>
+      </ScrollView>
+    </KeyboardAvoidingView>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    padding: 20,
     backgroundColor: '#f7f7f7',
+  },
+  scrollContainer: {
+    flexGrow: 1,
+    padding: 20,
   },
   header: {
     marginTop: 40,
@@ -148,9 +107,8 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: '#555',
     textAlign: 'center',
-    marginBottom: 30,
   },
-  pickerContainer: {
+  formContainer: {
     flex: 1,
     justifyContent: 'center',
   },
@@ -158,55 +116,34 @@ const styles = StyleSheet.create({
     fontSize: 18,
     fontWeight: 'bold',
     color: '#333',
-    marginBottom: 12,
-    marginLeft: 10,
-
+    marginBottom: 5,
   },
-  row: {
+  input: {
+    backgroundColor: '#fff',
+    borderWidth: 1,
+    borderColor: '#ddd',
+    borderRadius: 10,
+    padding: 10,
+    fontSize: 16,
+    marginBottom: 20,
+  },
+  radioContainer: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     marginBottom: 20,
   },
-  pickerWrapper: {
-    backgroundColor: '#fff',
-    borderColor: '#ddd',
-    borderRadius: 10,
-    flex: 1,
-    borderWidth: 1,
-    paddingVertical: 8,
-    marginHorizontal: 5,
-    elevation: 2,
-  },
-  pickerWrapper1: {
-    backgroundColor: '#fff',
-    borderWidth: 1,
-    borderColor: '#ddd',
-    borderRadius: 10,
-    paddingVertical: 8,
-    paddingHorizontal: 10,
-    marginBottom: 20,
-    elevation: 2,
-    marginHorizontal: 5,
-  },
-  picker: {
-    height: 50,
-    width: '100%', // Chiếm hết chiều rộng của phần tử chứa
-  },
-  pickerItem: {
-    height: 50,
-    color: '#333',
+  radioItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
   },
   nextButton: {
     backgroundColor: '#000',
     paddingVertical: 15,
     borderRadius: 10,
-    position: 'absolute',
-    bottom: 30,
-    left: 20,
-    right: 20,
     alignItems: 'center',
     justifyContent: 'center',
     elevation: 4,
+    marginBottom: 20, // Để tránh bị che bởi bàn phím
   },
   nextButtonText: {
     color: '#fff',
@@ -214,7 +151,5 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
   },
 });
-
-
 
 export default ProfileSetupScreen;
