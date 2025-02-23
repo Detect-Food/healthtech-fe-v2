@@ -7,7 +7,6 @@ import React, { useState } from "react";
 import { Ionicons } from "@expo/vector-icons";
 import { useNavigation } from "@react-navigation/native";
 import { Formik } from "formik";
-import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const { width } = Dimensions.get("window");
 
@@ -16,18 +15,6 @@ const LoginScreen = () => {
     const [showPassword, setShowPassword] = useState(true);
 
     const handleLogin = async (values, { setFieldError }) => {
-
-        const gender = await AsyncStorage.getItem('gender');
-        const height = await AsyncStorage.getItem('height');
-        const weight = await AsyncStorage.getItem('weight');
-        const month = await AsyncStorage.getItem('month');
-        const day = await AsyncStorage.getItem('day');
-        const year = await AsyncStorage.getItem('year');
-
-        console.log('Gender:', gender);
-        console.log('Height:', height);
-        console.log('Weight:', weight);
-        console.log('Birth Date:', `${month} ${day}, ${year}`);
 
 
         if (values.email !== "dev") {

@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, SafeAreaView } from 'react-native';
 import { Picker } from '@react-native-picker/picker';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const ProfileSetupScreen = ({ navigation }) => {
   const [month, setMonth] = useState('January');
@@ -20,43 +19,6 @@ const ProfileSetupScreen = ({ navigation }) => {
 
   const currentYear = new Date().getFullYear();
   const years = Array.from({ length: currentYear - 1899 }, (_, i) => 1900 + i);
-
-  useEffect(() => {
-    const loadStoredValues = async () => {
-      try {
-        const storedMonth = await AsyncStorage.getItem('month');
-        const storedDay = await AsyncStorage.getItem('day');
-        const storedYear = await AsyncStorage.getItem('year');
-        const storedGender = await AsyncStorage.getItem('gender');
-        const storedHeight = await AsyncStorage.getItem('height');
-        const storedWeight = await AsyncStorage.getItem('weight');
-
-        if (storedMonth) setMonth(storedMonth);
-        if (storedDay) setDay(storedDay);
-        if (storedYear) setYear(storedYear);
-        if (storedGender) setGender(storedGender);
-        if (storedHeight) setHeight(parseInt(storedHeight));
-        if (storedWeight) setWeight(parseInt(storedWeight));
-      } catch (error) {
-        console.error('Error loading data from AsyncStorage:', error);
-      }
-    };
-
-    loadStoredValues();
-  }, []);
-
-  const saveToStorage = async () => {
-    try {
-      await AsyncStorage.setItem('month', month);
-      await AsyncStorage.setItem('day', day);
-      await AsyncStorage.setItem('year', year);
-      await AsyncStorage.setItem('gender', gender);
-      await AsyncStorage.setItem('height', height.toString());
-      await AsyncStorage.setItem('weight', weight.toString());
-    } catch (error) {
-      console.error('Error saving data to AsyncStorage:', error);
-    }
-  };
 
   const handleNext = async () => {
     await saveToStorage();

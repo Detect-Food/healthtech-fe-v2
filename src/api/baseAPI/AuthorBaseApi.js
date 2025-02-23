@@ -1,5 +1,4 @@
 import axios from "axios";
-import AsyncStorage from "@react-native-async-storage/async-storage";
 import { Alert } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 
@@ -15,14 +14,6 @@ const axiosClient = axios.create({
   headers: apiConfig.headers,
 });
 
-// Interceptor cho request, thêm token vào header Authorization
-axiosClient.interceptors.request.use(async (config) => {
-  const token = await AsyncStorage.getItem("jwtToken");
-  if (token) {
-    config.headers.Authorization = `Bearer ${token}`;
-  }
-  return config;
-});
 
 // Interceptor cho response, xử lý các trường hợp lỗi
 axiosClient.interceptors.response.use(

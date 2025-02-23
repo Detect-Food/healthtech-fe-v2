@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, TextInput, Button, ScrollView, StyleSheet, SafeAreaView } from 'react-native';
-import AsyncStorage from '@react-native-async-storage/async-storage';
+
 import FoodAPI from '../api/FoodAPI';
 
 const GenFood = () => {
@@ -12,31 +12,6 @@ const GenFood = () => {
   const [mealPlan, setMealPlan] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
-
-  useEffect(() => {
-    const loadUserInfo = async () => {
-      try {
-        const storedGender = await AsyncStorage.getItem('gender');
-        const storedHeight = await AsyncStorage.getItem('height');
-        const storedWeight = await AsyncStorage.getItem('weight');
-        const storedMonth = await AsyncStorage.getItem('month');
-        const storedDay = await AsyncStorage.getItem('day');
-        const storedYear = await AsyncStorage.getItem('year');
-
-        setGender(storedGender || '');
-        setHeight(storedHeight || '');
-        setWeight(storedWeight || '');
-
-        if (storedYear) {
-          setBirthDate(`${storedMonth} ${storedDay}, ${storedYear}`);
-        }
-      } catch (error) {
-        console.error('Lỗi khi tải thông tin người dùng:', error);
-      }
-    };
-
-    loadUserInfo();
-  }, []);
 
   const calculateAge = (birthYear) => {
     const currentYear = new Date().getFullYear();
@@ -61,7 +36,7 @@ const GenFood = () => {
 
     try {
       const response = await FoodAPI.genFood(body);
-      
+
       console.log('API Response:', response);
 
       if (response && response.days) {
@@ -75,7 +50,7 @@ const GenFood = () => {
     } finally {
       setLoading(false);
     }
-    
+
   };
 
   return (
