@@ -22,10 +22,10 @@ function TabScreens() {
             iconName = 'bar-chart-outline';
           } else if (route.name === 'GenFood') {
             iconName = 'pizza-outline';
+          } else if (route.name === 'Billing') {
+            iconName = 'cash-outline'; 
           } else if (route.name === 'Settings') {
             iconName = 'settings-outline';
-          } else if (route.name === 'Billing') {
-            iconName = 'cash-outline'; // Icon cho Billing
           }
 
           return <Icon name={iconName} size={size} color={color} />;
@@ -38,8 +38,8 @@ function TabScreens() {
       <Tab.Screen name="HomePage" component={HomePage} options={{ headerShown: false }} />
       <Tab.Screen name="Analytics" component={Analytics} options={{ headerShown: false }} />
       <Tab.Screen name="GenFood" component={GenFood} options={{ headerShown: false }} />
-      <Tab.Screen name="Settings" component={Settings} options={{ headerShown: false }} />
       <Tab.Screen name="Billing" component={Billing} options={{ headerShown: false }} />
+      <Tab.Screen name="Settings" component={Settings} options={{ headerShown: false }} />
 
     </Tab.Navigator>
   );
