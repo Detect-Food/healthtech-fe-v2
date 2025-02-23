@@ -1,6 +1,7 @@
-import { View, Text, ScrollView, StyleSheet, TextInput, Image, Switch, SafeAreaView, TouchableOpacity } from "react-native"
+import { View, Text, ScrollView, StyleSheet, TextInput, Image, Switch, SafeAreaView, TouchableOpacity, Alert } from "react-native"
 import { Ionicons } from "@expo/vector-icons"
 import { useNavigation } from "@react-navigation/native"
+import AsyncStorage from "@react-native-async-storage/async-storage"
 
 const SettingsItem = ({ icon, label, value, color = "#000", showSwitch, isOn, showArrow = true, onPress }) => (
   <TouchableOpacity onPress={onPress} activeOpacity={0.7}>
@@ -20,10 +21,26 @@ const SettingsItem = ({ icon, label, value, color = "#000", showSwitch, isOn, sh
   </TouchableOpacity>
 )
 
+
+
 const SettingsGroup = ({ children }) => <View style={styles.settingsGroup}>{children}</View>
 
 export default function SettingsScreen() {
   const navigation = useNavigation()
+
+  const handleLogout = async () => {
+    try {
+
+      await AsyncStorage.removeItem('userId');
+
+      navigation.navigate('Login');
+
+      Alert.alert('Đăng xuất thành công', 'Bạn đã được đăng xuất.');
+    } catch (error) {
+      console.error('Lỗi khi đăng xuất:', error);
+      Alert.alert('Có lỗi xảy ra', 'Không thể đăng xuất, vui lòng thử lại.');
+    }
+  };
 
   return (
     <SafeAreaView style={styles.container}>
@@ -46,13 +63,13 @@ export default function SettingsScreen() {
 
         {/* System Settings */}
         <SettingsGroup>
-          <SettingsItem icon="key" label="Change Password" color="#FC3D39" />
           <SettingsItem
             icon="person-circle"
             label="Personal Detail"
             color="#007AFF"
             onPress={() => navigation.navigate("PersonalDetail")}
           />
+          <SettingsItem icon="key" label="Change Password" color="#FC3D39" />
           <SettingsItem icon="lock-closed" label="Two-Factor Authentication" color="#4CD964" />
           <SettingsItem icon="eye" label="Privacy & Permissions" color="#6C2DC7" />
           <SettingsItem icon="phone-portrait" label="Manage Devices" color="#FC3D39" />
@@ -61,6 +78,9 @@ export default function SettingsScreen() {
         {/* General Settings */}
         <SettingsGroup>
           <SettingsItem icon="settings" label="General" color="#8E8E93" />
+        </SettingsGroup>
+        <SettingsGroup>
+          <SettingsItem icon="log-out" label="Log Out" onPress={handleLogout} color="#FC3D39" />
         </SettingsGroup>
       </ScrollView>
     </SafeAreaView>
