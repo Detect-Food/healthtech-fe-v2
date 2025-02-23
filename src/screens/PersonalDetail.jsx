@@ -9,6 +9,7 @@ const PersonalDetail = () => {
   const [height, setHeight] = useState('');
   const [weight, setWeight] = useState('');
   const [age, setAge] = useState('');
+  const [note, setNote] = useState(''); // Trường note
   const [loading, setLoading] = useState(false);
   const [userId, setUserId] = useState(null);
 
@@ -22,12 +23,13 @@ const PersonalDetail = () => {
           const response = await UserAPI.getUserPhysicalStats(storedUserId);
 
           if (response?.status === 200) {
-            const { Gender, Height, Weight, Age } = response?.userPhysicalStats || {};
+            const { Gender, Height, Weight, Age, Note } = response?.userPhysicalStats || {};
 
             setGender(Gender || '');
             setHeight(String(Height) || '');
             setWeight(String(Weight) || '');
             setAge(String(Age) || '');
+            setNote(Note || ''); // Lấy note từ API nếu có
           }
         }
       } catch (error) {
@@ -49,6 +51,7 @@ const PersonalDetail = () => {
       height: parseInt(height, 10) || 0,
       weight: parseInt(weight, 10) || 0,
       age: parseInt(age, 10) || 0,
+      note, // Thêm note vào dữ liệu gửi đi
     };
 
     try {
@@ -58,6 +61,7 @@ const PersonalDetail = () => {
       await AsyncStorage.setItem('height', height);
       await AsyncStorage.setItem('weight', weight);
       await AsyncStorage.setItem('age', age);
+      await AsyncStorage.setItem('note', note); // Lưu note vào AsyncStorage
 
       Alert.alert('Thành công', 'Thông tin đã được cập nhật!');
     } catch (error) {
@@ -115,6 +119,15 @@ const PersonalDetail = () => {
         value={String(age)}
         onChangeText={(text) => setAge(text)}
         placeholder="Nhập tuổi"
+      />
+
+      <Text style={styles.label}>Ghi chú:</Text>
+      <TextInput
+        style={[styles.input, { height: 60 }]} 
+        multiline
+        value={note}
+        onChangeText={(text) => setNote(text)}
+        placeholder="Nhập ghi chú"
       />
 
       <TouchableOpacity

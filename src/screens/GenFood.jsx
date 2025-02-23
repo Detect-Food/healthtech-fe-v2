@@ -1,8 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, TextInput, Button, ScrollView, StyleSheet, SafeAreaView } from 'react-native';
+import { View, Text, Button, ScrollView, StyleSheet, SafeAreaView } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 import FoodAPI from '../api/FoodAPI';
+import UserAPI from '../api/UserAPI';  // Thêm API để lấy thông tin người dùng
+import { useFocusEffect } from '@react-navigation/native';
 
 const GenFood = () => {
   const [gender, setGender] = useState('');
@@ -14,25 +16,31 @@ const GenFood = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
-  useEffect(() => {
-    const fetchUserData = async () => {
-      try {
-        const storedGender = await AsyncStorage.getItem('gender');
-        const storedHeight = await AsyncStorage.getItem('height');
-        const storedWeight = await AsyncStorage.getItem('weight');
-        const storedAge = await AsyncStorage.getItem('age');
-
-        if (storedGender) setGender(storedGender);
-        if (storedHeight) setHeight(storedHeight);
-        if (storedWeight) setWeight(storedWeight);
-        if (storedAge) setAge(storedAge);
-      } catch (error) {
-        console.error('Lỗi khi lấy dữ liệu từ AsyncStorage:', error);
-      }
-    };
-
-    fetchUserData();
-  }, []);
+  useFocusEffect(
+    React.useCallback(() => {
+      const fetchUserData = async () => {
+        try {
+          const storedUserId = await AsyncStorage.getItem('userId');
+          if (storedUserId) {
+            const response = await UserAPI.getUserPhysicalStats(storedUserId);
+  
+            if (response?.status === 200) {
+              const { Gender, Height, Weight, Age, Note } = response?.userPhysicalStats || {};
+  
+              setGender(Gender || '');
+              setHeight(String(Height) || '');
+              setWeight(String(Weight) || '');
+              setAge(String(Age) || '');
+              setNote(Note || ''); // Lấy note từ API nếu có
+            }
+          }
+        } catch (error) {
+          console.error('Lỗi khi lấy dữ liệu:', error);
+        }
+      };
+      fetchUserData();
+    }, []) // Hàm này sẽ chạy mỗi khi màn hình được focus
+  );
 
   const generateMeal = async () => {
     setLoading(true);
@@ -50,7 +58,6 @@ const GenFood = () => {
     try {
       const response = await FoodAPI.genFood(body);
       console.log(response?.data);
-      
 
       if (response?.data && response?.data?.days) {
         setMealPlan(response?.data);
@@ -103,19 +110,13 @@ const GenFood = () => {
       <Text style={styles.infoText}>Cân nặng: {weight} kg</Text>
       <Text style={styles.infoText}>Tuổi: {age}</Text>
 
-      <TextInput
-        style={styles.input}
-        placeholder="Nhập ghi chú (VD: Không ăn cá)..."
-        value={note}
-        onChangeText={setNote}
-        placeholderTextColor="#aaa"
-      />
+      <Text style={styles.noteText}>Ghi chú: {note}</Text>
 
-      <Button 
-        title="Gen Meal" 
-        onPress={generateMeal} 
-        disabled={loading} 
-        color="#ff6347" 
+      <Button
+        title="Gen Meal"
+        onPress={generateMeal}
+        disabled={loading}
+        color="#ff6347"
       />
 
       {loading && <Text style={styles.loading}>Đang tạo bữa ăn...</Text>}
@@ -144,14 +145,11 @@ const styles = StyleSheet.create({
     color: '#34495e',
     marginBottom: 5,
   },
-  input: {
-    borderWidth: 1,
-    borderColor: '#ccc',
-    borderRadius: 8,
-    padding: 12,
-    marginVertical: 15,
-    backgroundColor: '#fff',
+  noteText: {
     fontSize: 16,
+    color: '#7f8c8d',
+    marginVertical: 15,
+    fontStyle: 'italic',
   },
   loading: {
     marginTop: 10,
