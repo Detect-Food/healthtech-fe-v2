@@ -24,6 +24,7 @@ const HomePage = () => {
         if (response?.days && response.days.length > 0) {
           setNutritionData(response.days);
           setNutritionalNeeds(response.nutritionalNeeds);
+          setError(null);
         } else {
           setError('Bạn đang chưa có lộ trình ăn');
         }
@@ -172,7 +173,7 @@ const styles = StyleSheet.create({
   },
   dateContainer: {
     marginTop: 30,
-    height: 200,
+    height: 300,
   },
   dayItem: {
     paddingVertical: 12,
