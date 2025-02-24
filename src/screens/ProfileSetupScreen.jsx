@@ -119,7 +119,7 @@ const styles = StyleSheet.create({
     padding: 20,
   },
   header: {
-    marginTop: 40,
+    marginTop: 70,
     alignItems: 'center',
   },
   title: {
