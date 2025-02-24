@@ -1,4 +1,4 @@
-const IP = "192.168.1.110";
+const IP = "192.168.100.126";
 
 export default {
     name: "Health Tech",

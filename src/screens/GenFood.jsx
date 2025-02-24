@@ -57,14 +57,79 @@ const GenFood = () => {
     };
 
     try {
-      const response = await FoodAPI.genFood(body);
-      console.log(response?.data);
+      const response = {
+        "nutritionalNeeds": {
+          "description": "Nhu cầu năng lượng hàng ngày của người dùng phụ thuộc vào tuổi, cân nặng, chiều cao, và giới tính. Với chiều cao 172 cm, cân nặng 50 kg, và giới tính nữ, mức độ hoạt động sinh hoạt được tính toán là trung bình (BMR + hoạt động nhẹ). Không sử dụng chất béo bão hòa trong chế độ ăn.",
+          "totalCalories": "Khoảng 1,800 kcal mỗi ngày, với tỷ lệ macronutrients gợi ý: 50% Carbs - 25% Protein - 25% Fat."
+        },
+        "_id": "67bb7f25937e3cbff9233cfb",
+        "days": [
+          {
+            "day": "Day 1",
+            "meals": [
+              {
+                "meal": "Breakfast",
+                "description": "- 1 lát bánh mì đen nguyên cám (50g) - 120 kcal - 2 thìa bơ hạt hạnh nhân (10g, không dầu hydrogen hóa) - 90 kcal - 1 quả trứng luộc - 70 kcal - 1 trái chuối nhỏ (~100g) - 90 kcal - 1 ly sữa hạt không đường (200ml) - 80 kcal ",
+                "calories": 450
+              },
+              {
+                "meal": "Lunch",
+                "description": "- 1 bát cơm gạo lứt nhỏ (100g) - 110 kcal - 150g thịt ức gà áp chảo không dầu - 250 kcal - 200g rau cải xanh luộc (bông cải, cải bó xôi) - 50 kcal - 1 thìa dầu oliu (cho vào rau) - 120 kcal - 1 quả cam - 120 kcal ",
+                "calories": 650
+              },
+              {
+                "meal": "Dinner",
+                "description": "- 1 bát phở cuốn với bánh phở gạo (120g) - 200 kcal - 120g cá hồi áp chảo, dùng dầu oliu thay vì bơ - 250 kcal - 200g rau xà lách, cà chua, và dưa leo trộn dầu mè - 100 kcal - 1 ly nước ép táo không đường (150ml) - 150 kcal --- ",
+                "calories": 700
+              }
+            ]
+          },
+          {
+            "day": "Day 2",
+            "meals": [
+              {
+                "meal": "Breakfast",
+                "description": "- 1 bát cháo yến mạch ăn kèm hạt chia (30g yến mạch, 5g hạt chia) - 150 kcal - 1 thìa hạt óc chó (7g) - 50 kcal - 1 quả táo đỏ (~120g) - 60 kcal - 1 ly sữa hạnh nhân không đường (200ml) - 80 kcal - 1 quả trứng luộc - 70 kcal ",
+                "calories": 450
+              },
+              {
+                "meal": "Lunch",
+                "description": "- 1 bát cơm gạo lứt nhỏ (100g) - 110 kcal - 150g cá basa hấp với ít nước chanh - 220 kcal - 200g rau luộc (cải thảo, cà rốt) - 50 kcal - 25g quả bơ làm topping - 50 kcal - 1 quả kiwi - 80 kcal - 1 hũ sữa chua không đường - 140 kcal ",
+                "calories": 650
+              },
+              {
+                "meal": "Dinner",
+                "description": "- 150g bún gạo lứt với nước dùng nấu từ rau củ - 200 kcal - 120g tôm hấp không dầu - 100 kcal - 200g rau xà lách trộn giấm táo và dầu oliu - 150 kcal - 1 bắp ngô luộc (~100g) - 100 kcal - 1 ly sinh tố bơ chuối không đường (200ml) - 150 kcal --- - Các bữa ăn đã được phân bổ với tỷ lệ Carbs/Protein/Fats phù hợp (50%/25%/25%). - Không sử dụng chất béo bão hòa; thay thế bằng dầu oliu/dầu mè và các chất béo tốt từ hạt. - Chế biến các món ăn đơn giản bằng cách luộc, hấp, áp chảo không dầu hoặc dùng dầu lành mạnh. - Uống đủ nước (2-2.5 lít mỗi ngày). ",
+                "calories": 700
+              }
+            ]
+          }
+        ],
+        "status": true,
+        "createdAt": "2025-02-23T20:03:49.483Z",
+        "updatedAt": "2025-02-23T20:03:49.483Z",
+        "__v": 0
+      };
 
-      if (response?.data && response?.data?.days) {
-        setMealPlan(response?.data);
-      } else {
-        setError('Không thể tạo bữa ăn, vui lòng thử lại.');
-      }
+      setTimeout(() => {
+        if (response?.days) {
+          setMealPlan(response);
+        } else {
+          setError('Không thể tạo bữa ăn, vui lòng thử lại.');
+        }
+      }, 5000); 
+
+
+
+      // const response = await FoodAPI.genFood(body);
+      // console.log(response?.data);
+
+
+      // if (response?.data && response?.data?.days) {
+      //   setMealPlan(response?.data);
+      // } else {
+      //   setError('Không thể tạo bữa ăn, vui lòng thử lại.');
+      // }
     } catch (error) {
       console.error('Lỗi API:', error);
       setError('Lỗi khi gọi API.');
