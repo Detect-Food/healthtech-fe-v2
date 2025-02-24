@@ -9,17 +9,30 @@ import { Checkbox } from 'react-native-paper';
 const HomePage = () => {
   const [nutritionData, setNutritionData] = useState([]);
   const [selectedDay, setSelectedDay] = useState(null);
+  const [expandedDay, setExpandedDay] = useState(null);
   const [selectedMeals, setSelectedMeals] = useState([]);
+  const [loading, setLoading] = useState(true);  // Track loading state
+  const [error, setError] = useState(null);  // Track error state
+  const [nutritionalNeeds, setNutritionalNeeds] = useState(null);
 
   const fetchNutritionPlan = async () => {
     try {
       const userId = await AsyncStorage.getItem('userId');
       if (userId) {
         const response = await FoodAPI.getNutritionPlan(userId);
-        setNutritionData(response?.data?.days);
+        if (response?.days && response.days.length > 0) {
+          setNutritionData(response.days);
+          setNutritionalNeeds(response.nutritionalNeeds);
+        } else {
+          setError('Bạn đang chưa có lộ trình ăn');
+        }
+      } else {
+        setError('Không có thông tin người dùng');
       }
     } catch (error) {
       console.error('Error fetching nutrition plan:', error);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -57,12 +70,25 @@ const HomePage = () => {
   const renderDayItem = (item, index) => (
     <TouchableOpacity
       style={[styles.dayItem, selectedDay === index && styles.selectedDay]}
-      onPress={() => setSelectedDay(selectedDay === index ? null : index)}
+      onPress={() => {
+        // Toggle expand/collapse for the selected day
+        setExpandedDay(expandedDay === index ? null : index);
+        setSelectedDay(index); // Set the selected day
+      }}
       key={index}
     >
       <Text style={styles.dayText}>{item.day}</Text>
     </TouchableOpacity>
   );
+
+  // Show loading screen or error message if no data
+  if (loading) {
+    return (
+      <SafeAreaView style={styles.container}>
+        <Text>Đang tải lộ trình ăn...</Text>
+      </SafeAreaView>
+    );
+  }
 
   return (
     <SafeAreaView style={styles.container}>
@@ -75,21 +101,35 @@ const HomePage = () => {
         </View>
       </View>
 
+      {error && <Text style={styles.errorText}>{error}</Text>}
+      {loading && <Text style={styles.loadingText}>Đang tải lộ trình ăn...</Text>}
+
+      {/* Nutritional Needs */}
+      {nutritionalNeeds && (
+        <View style={styles.nutritionalNeeds}>
+          <Text style={styles.nutritionalNeedsTitle}>Nhu cầu dinh dưỡng hàng ngày</Text>
+          <Text style={styles.nutritionalNeedsText}>
+            {nutritionalNeeds.description}
+          </Text>
+          <Text style={styles.nutritionalNeedsText}>
+            {nutritionalNeeds.totalCalories} kcal
+          </Text>
+        </View>
+      )}
+
       {/* Date Selection (Vertical list) */}
       <ScrollView style={styles.dateContainer}>
         {nutritionData.map((day, index) => renderDayItem(day, index))}
       </ScrollView>
 
-      {/* Meals for Selected Day (Only shown when a day is selected) */}
-      {selectedDay !== null && (
+      {/* Meals for Selected Day (Only shown when a day is selected and expanded) */}
+      {expandedDay !== null && (
         <FlatList
-          data={nutritionData[selectedDay].meals}
-          renderItem={({ item, index }) => renderMeal(item, selectedDay, index)}
-          keyExtractor={(item, index) => `${selectedDay}-${index}`}
+          data={nutritionData[expandedDay].meals}
+          renderItem={({ item, index }) => renderMeal(item, expandedDay, index)}
+          keyExtractor={(item, index) => `${expandedDay}-${index}`}
         />
       )}
-
-
     </SafeAreaView>
   );
 };
@@ -101,6 +141,14 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     paddingTop: 40,
   },
+  errorText: {
+    fontSize: 16,
+    fontWeight: 'bold',
+    color: 'red',
+    textAlign: 'center',
+    marginVertical: 40,
+  },
+
   header: {
     flexDirection: 'row',
     justifyContent: 'space-between',
@@ -120,7 +168,7 @@ const styles = StyleSheet.create({
   },
   dateContainer: {
     marginTop: 30,
-    height: 200
+    height: 200,
   },
   dayItem: {
     paddingVertical: 12,
@@ -185,6 +233,31 @@ const styles = StyleSheet.create({
     shadowOffset: { width: 0, height: 2 },
     shadowRadius: 4,
   },
+
+  // Nutritional Needs Styles
+  nutritionalNeeds: {
+    backgroundColor: '#fff',
+    borderRadius: 12,
+    padding: 16,
+    marginVertical: 20,
+    elevation: 2,
+    shadowColor: '#000',
+    shadowOpacity: 0.1,
+    shadowOffset: { width: 0, height: 1 },
+    shadowRadius: 5,
+  },
+  nutritionalNeedsTitle: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: '#2ecc71', // Green color for the title
+    marginBottom: 8,
+  },
+  nutritionalNeedsText: {
+    fontSize: 16,
+    color: '#333',
+    lineHeight: 24,
+  },
 });
+
 
 export default HomePage;

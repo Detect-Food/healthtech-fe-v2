@@ -34,7 +34,8 @@ class FoodAPI {
 
 
     getNutritionPlan = async (userId) => {
-        return UnauthorApi.get(`${this.url}/nutrition/${userId}`);
+        const response = await UnauthorApi.get(`${this.url}/nutrition/${userId}`);
+        return response?.data;
     };
 
 

@@ -137,15 +137,15 @@ const GenFood = () => {
       <Text style={styles.infoText}>Tuổi: {age}</Text>
 
       <Text style={styles.noteText}>Ghi chú: {note}</Text>
-
-      <View style={styles.buttonContainer}>
+      {!mealPlan && <View style={styles.buttonContainer}>
         <Button
-          title="Gen Meal"
+          title="Tạo lộ trình ăn"
           onPress={generateMeal}
           disabled={loading}
           color="#ff6347"
         />
-      </View>
+      </View>}
+
 
       {/* Only show the save button when meal plan is generated */}
       {!loading && mealPlan && (
