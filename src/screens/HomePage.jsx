@@ -5,6 +5,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import FoodAPI from '../api/FoodAPI';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Checkbox } from 'react-native-paper';
+import { useFocusEffect } from '@react-navigation/native';
 
 const HomePage = () => {
   const [nutritionData, setNutritionData] = useState([]);
@@ -36,9 +37,12 @@ const HomePage = () => {
     }
   };
 
-  useEffect(() => {
-    fetchNutritionPlan();
-  }, []);
+  useFocusEffect(
+    React.useCallback(() => {
+      fetchNutritionPlan();
+      console.log('123414');
+    }, [])
+  );
 
   const toggleMealCheck = (dayIndex, mealIndex) => {
     const updatedMeals = [...selectedMeals];
