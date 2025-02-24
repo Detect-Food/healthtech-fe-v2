@@ -1,7 +1,7 @@
 const IP = "192.168.100.126";
 
 export default {
-    name: "My App",
+    name: "Health Tech",
     version: "1.0.0",
     extra: {
         healthTechApi: `http://${IP}:5000`,
