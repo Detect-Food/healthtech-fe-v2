@@ -54,9 +54,10 @@ const Analytics = () => {
     } catch (error) {
       console.error('Error uploading image:', error);
       Alert.alert('Lỗi', 'Không thể tải lên ảnh.');
-    } finally {
-      setLoading(false);
-    }
+    } 
+    // finally {
+    //   setLoading(false);
+    // }
   };
 
   const captureImage = async () => {

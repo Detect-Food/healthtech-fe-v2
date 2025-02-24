@@ -114,6 +114,7 @@ const GenFood = () => {
       setTimeout(() => {
         if (response?.days) {
           setMealPlan(response);
+          setLoading(false);
         } else {
           setError('Không thể tạo bữa ăn, vui lòng thử lại.');
         }
@@ -133,9 +134,10 @@ const GenFood = () => {
     } catch (error) {
       console.error('Lỗi API:', error);
       setError('Lỗi khi gọi API.');
-    } finally {
-      setLoading(false);
-    }
+    } 
+    // finally {
+    //   setLoading(false);
+    // }
   };
 
   const handleSaveMealPlan = async () => {
