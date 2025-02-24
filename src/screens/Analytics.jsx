@@ -19,10 +19,9 @@ const Analytics = () => {
         message: "Tôi là Duy Hoàng",
       };
       const response = await ImageAPI.uploadImage(body);
-      console.log(response);
 
       if (response) {
-        setScanResults(response);
+        setScanResults(response?.data);
       }
 
       Toast.show({
