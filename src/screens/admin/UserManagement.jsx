@@ -1,11 +1,13 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, FlatList, TouchableOpacity, Alert, Modal, Button } from 'react-native';
+import { View, Text, StyleSheet, FlatList, TouchableOpacity, Modal } from 'react-native';
 import UserAPI from '../../api/UserAPI';
 
 function UserManagement() {
     const [users, setUsers] = useState([]);
     const [isModalVisible, setIsModalVisible] = useState(false);
     const [selectedUser, setSelectedUser] = useState(null);
+    const [currentPage, setCurrentPage] = useState(1);
+    const usersPerPage = 10;
 
     useEffect(() => {
         const fetchUsers = async () => {
@@ -30,16 +32,17 @@ function UserManagement() {
         setSelectedUser(null);
     };
 
+    const indexOfLastUser = currentPage * usersPerPage;
+    const indexOfFirstUser = indexOfLastUser - usersPerPage;
+    const currentUsers = users.slice(indexOfFirstUser, indexOfLastUser);
+    const totalPages = Math.ceil(users.length / usersPerPage);
+
     const renderUser = ({ item }) => (
         <View style={styles.row}>
             <Text style={styles.cell}>{item.username}</Text>
             <Text style={styles.cell}>{item.subcription}</Text>
             <Text style={styles.cell}>{item.role}</Text>
-
-            <TouchableOpacity
-                style={styles.button}
-                onPress={() => handleUserClick(item)}
-            >
+            <TouchableOpacity style={styles.button} onPress={() => handleUserClick(item)}>
                 <Text style={styles.buttonText}>View Details</Text>
             </TouchableOpacity>
         </View>
@@ -48,24 +51,37 @@ function UserManagement() {
     return (
         <View style={styles.container}>
             <Text style={styles.title}>User Management</Text>
-
-            {/* Table Header */}
             <View style={styles.headerRow}>
                 <Text style={styles.headerCell}>Username</Text>
                 <Text style={styles.headerCell}>Subscription</Text>
                 <Text style={styles.headerCell}>Role</Text>
                 <Text style={styles.headerCell}>Actions</Text>
             </View>
-
-            {/* FlatList to display users in table format */}
             <FlatList
-                data={users}
+                data={currentUsers}
                 renderItem={renderUser}
                 keyExtractor={(item) => item._id}
                 contentContainerStyle={styles.table}
             />
-
-            {/* Modal to show user details */}
+            <View style={styles.paginationContainer}>
+                <TouchableOpacity 
+                    onPress={() => setCurrentPage((prev) => Math.max(prev - 1, 1))} 
+                    disabled={currentPage === 1}>
+                    <Text style={styles.paginationText}>{'< '}</Text>
+                </TouchableOpacity>
+                {Array.from({ length: totalPages }, (_, i) => (
+                    <TouchableOpacity key={i + 1} onPress={() => setCurrentPage(i + 1)}>
+                        <Text style={[styles.paginationText, currentPage === i + 1 && styles.activePage]}>
+                            {i + 1}
+                        </Text>
+                    </TouchableOpacity>
+                ))}
+                <TouchableOpacity 
+                    onPress={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))} 
+                    disabled={currentPage === totalPages}>
+                    <Text style={styles.paginationText}>{' >'}</Text>
+                </TouchableOpacity>
+            </View>
             {selectedUser && (
                 <Modal
                     visible={isModalVisible}
@@ -111,9 +127,6 @@ const styles = StyleSheet.create({
         marginBottom: 20,
         textAlign: 'center',
     },
-    table: {
-        paddingBottom: 20,
-    },
     headerRow: {
         flexDirection: 'row',
         backgroundColor: '#4CAF50',
@@ -157,7 +170,21 @@ const styles = StyleSheet.create({
         color: 'white',
         fontWeight: 'bold',
     },
-
+    paginationContainer: {
+        flexDirection: 'row',
+        justifyContent: 'center',
+        alignItems: 'center',
+        marginTop: 20,
+    },
+    paginationText: {
+        fontSize: 18,
+        marginHorizontal: 5,
+        padding: 5,
+    },
+    activePage: {
+        fontWeight: 'bold',
+        color: '#4CAF50',
+    },
     modalContainer: {
         flex: 1,
         justifyContent: 'center',
