@@ -5,7 +5,7 @@ import Analytics from '../screens/Analytics';
 import Settings from '../screens/Settings';
 import Icon from 'react-native-vector-icons/Ionicons';
 import GenFood from '../screens/GenFood';
-import Billing from '../screens/Billing'; 
+import ChatBot from '../screens/ChatBot'; // Import màn hình ChatBot mới
 
 const Tab = createBottomTabNavigator();
 
@@ -22,8 +22,8 @@ function TabScreens() {
             iconName = 'bar-chart-outline';
           } else if (route.name === 'GenFood') {
             iconName = 'pizza-outline';
-          } else if (route.name === 'Billing') {
-            iconName = 'cash-outline'; 
+          } else if (route.name === 'ChatBot') {
+            iconName = 'chatbubble-outline'; // Icon cho ChatBot
           } else if (route.name === 'Settings') {
             iconName = 'settings-outline';
           }
@@ -38,9 +38,8 @@ function TabScreens() {
       <Tab.Screen name="HomePage" component={HomePage} options={{ headerShown: false }} />
       <Tab.Screen name="Analytics" component={Analytics} options={{ headerShown: false }} />
       <Tab.Screen name="GenFood" component={GenFood} options={{ headerShown: false }} />
-      <Tab.Screen name="Billing" component={Billing} options={{ headerShown: false }} />
+      <Tab.Screen name="ChatBot" component={ChatBot} options={{ headerShown: false }} />
       <Tab.Screen name="Settings" component={Settings} options={{ headerShown: false }} />
-
     </Tab.Navigator>
   );
 }

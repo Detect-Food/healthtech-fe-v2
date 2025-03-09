@@ -11,6 +11,7 @@ import ProfileSetupScreen from './src/screens/ProfileSetupScreen';
 import SignUpScreen from './src/screens/SignUpScreen';
 import PersonalDetailScreen from './src/screens/PersonalDetail';
 import AdminTabScreen from './src/components/AdminTabScreen';
+import Billing from './src/screens/Billing';
 
 const Stack = createStackNavigator();
 
@@ -68,6 +69,7 @@ export default function App() {
         />
 
         <Stack.Screen name="AdminHome" component={AdminTabScreen} options={{ headerShown: false }} />
+        <Stack.Screen name="Billing" component={Billing} />
 
 
         <Stack.Screen name="Home" component={TabScreens} options={{ headerShown: false }} />

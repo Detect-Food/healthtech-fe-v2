@@ -21,8 +21,6 @@ const SettingsItem = ({ icon, label, value, color = "#000", showSwitch, isOn, sh
   </TouchableOpacity>
 )
 
-
-
 const SettingsGroup = ({ children }) => <View style={styles.settingsGroup}>{children}</View>
 
 export default function SettingsScreen() {
@@ -30,11 +28,8 @@ export default function SettingsScreen() {
 
   const handleLogout = async () => {
     try {
-
       await AsyncStorage.removeItem('userId');
-
       navigation.navigate('Login');
-
       Alert.alert('Đăng xuất thành công', 'Bạn đã được đăng xuất.');
     } catch (error) {
       console.error('Lỗi khi đăng xuất:', error);
@@ -69,24 +64,51 @@ export default function SettingsScreen() {
             color="#007AFF"
             onPress={() => navigation.navigate("PersonalDetail")}
           />
-          <SettingsItem icon="key" label="Change Password" color="#FC3D39" />
-          <SettingsItem icon="lock-closed" label="Two-Factor Authentication" color="#4CD964" />
-          <SettingsItem icon="eye" label="Privacy & Permissions" color="#6C2DC7" />
-          <SettingsItem icon="phone-portrait" label="Manage Devices" color="#FC3D39" />
+          <SettingsItem 
+            icon="key" 
+            label="Change Password" 
+            color="#FC3D39" 
+          />
+          <SettingsItem 
+            icon="card" 
+            label="Billing" 
+            color="#4CD964" 
+            onPress={() => navigation.navigate("Billing")} // Thêm navigation sang trang Billing
+          />
+          <SettingsItem 
+            icon="eye" 
+            label="Privacy & Permissions" 
+            color="#6C2DC7" 
+          />
+          <SettingsItem 
+            icon="phone-portrait" 
+            label="Manage Devices" 
+            color="#FC3D39" 
+          />
         </SettingsGroup>
 
         {/* General Settings */}
         <SettingsGroup>
-          <SettingsItem icon="settings" label="General" color="#8E8E93" />
+          <SettingsItem 
+            icon="settings" 
+            label="General" 
+            color="#8E8E93" 
+          />
         </SettingsGroup>
         <SettingsGroup>
-          <SettingsItem icon="log-out" label="Log Out" onPress={handleLogout} color="#FC3D39" />
+          <SettingsItem 
+            icon="log-out" 
+            label="Log Out" 
+            onPress={handleLogout} 
+            color="#FC3D39" 
+          />
         </SettingsGroup>
       </ScrollView>
     </SafeAreaView>
   )
 }
 
+// Styles giữ nguyên như cũ
 const styles = StyleSheet.create({
   container: {
     flex: 1,
