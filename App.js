@@ -1,15 +1,13 @@
+import 'react-native-gesture-handler';
 import React, { useState, useEffect } from 'react';
+import { StyleSheet, View } from 'react-native';
 import { createStackNavigator } from '@react-navigation/stack';
 import { StatusBar } from 'expo-status-bar';
 import { NavigationContainer } from '@react-navigation/native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Ionicons } from '@expo/vector-icons';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
-import { StyleSheet } from 'react-native';
-import { enableScreens } from 'react-native-screens';
-
-// Enable screens support before rendering any navigation stack
-enableScreens();
+import { SafeAreaProvider } from 'react-native-safe-area-context';
 
 import TabScreens from './src/components/TabScreens';
 import LoginScreen from './src/screens/LoginScreen';
@@ -21,7 +19,7 @@ import Billing from './src/screens/Billing';
 
 const Stack = createStackNavigator();
 
-export default function App() {
+function Navigation() {
   const [isFirstLaunch, setIsFirstLaunch] = useState(null);
 
   useEffect(() => {
@@ -41,48 +39,53 @@ export default function App() {
   }, []);
 
   if (isFirstLaunch === null) {
-    return null; // Loading...
+    return null;
   }
 
   return (
+    <Stack.Navigator initialRouteName={isFirstLaunch ? "ProfileSetup" : "Login"}>
+      <Stack.Screen name="Login" component={LoginScreen} options={{ headerShown: false }} />
+      <Stack.Screen name="SignUp" component={SignUpScreen} options={{ headerShown: false }} />
+      <Stack.Screen
+        name="PersonalDetail"
+        component={PersonalDetailScreen}
+        options={({ navigation }) => ({
+          headerShown: true,
+          title: "Thông tin cá nhân",
+          headerLeft: () => (
+            <Ionicons
+              name="arrow-back"
+              size={24}
+              color="black"
+              style={{ marginLeft: 16 }}
+              onPress={() => {
+                if (navigation.canGoBack()) {
+                  navigation.goBack();
+                } else {
+                  navigation.navigate('Home');
+                }
+              }}
+            />
+          ),
+        })}
+      />
+      <Stack.Screen name="AdminHome" component={AdminTabScreen} options={{ headerShown: false }} />
+      <Stack.Screen name="Billing" component={Billing} />
+      <Stack.Screen name="Home" component={TabScreens} options={{ headerShown: false }} />
+      <Stack.Screen name="ProfileSetup" component={ProfileSetupScreen} options={{ headerShown: false }} />
+    </Stack.Navigator>
+  );
+}
+
+export default function App() {
+  return (
     <GestureHandlerRootView style={styles.container}>
-      <NavigationContainer>
-        <Stack.Navigator initialRouteName={isFirstLaunch ? "ProfileSetup" : "Login"}>
-          <Stack.Screen name="Login" component={LoginScreen} options={{ headerShown: false }} />
-          <Stack.Screen name="SignUp" component={SignUpScreen} options={{ headerShown: false }} />
-
-          <Stack.Screen
-            name="PersonalDetail"
-            component={PersonalDetailScreen}
-            options={({ navigation }) => ({
-              headerShown: true,
-              title: "Thông tin cá nhân",
-              headerLeft: () => (
-                <Ionicons
-                  name="arrow-back"
-                  size={24}
-                  color="black"
-                  style={{ marginLeft: 16 }}
-                  onPress={() => {
-                    if (navigation.canGoBack()) {
-                      navigation.goBack();
-                    } else {
-                      navigation.navigate('Home');
-                    }
-                  }}
-                />
-              ),
-            })}
-          />
-
-          <Stack.Screen name="AdminHome" component={AdminTabScreen} options={{ headerShown: false }} />
-          <Stack.Screen name="Billing" component={Billing} />
-
-          <Stack.Screen name="Home" component={TabScreens} options={{ headerShown: false }} />
-          <Stack.Screen name="ProfileSetup" component={ProfileSetupScreen} options={{ headerShown: false }} />
-        </Stack.Navigator>
-        <StatusBar style="auto" />
-      </NavigationContainer>
+      <SafeAreaProvider>
+        <NavigationContainer>
+          <Navigation />
+          <StatusBar style="auto" />
+        </NavigationContainer>
+      </SafeAreaProvider>
     </GestureHandlerRootView>
   );
 }
@@ -90,5 +93,6 @@ export default function App() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    backgroundColor: '#fff',
   },
 });

@@ -55,6 +55,21 @@
         "projectId": "4c8802f2-6b1e-4e7a-b33f-e5b7503e60f4"
       },
       "healthTechApi": "https://healthtech-be.vercel.app"
+    },
+    "developmentClient": {
+      "silentLaunch": true
+    },
+    "updates": {
+      "enabled": true,
+      "checkAutomatically": "ON_LOAD",
+      "fallbackToCacheTimeout": 0
+    },
+    "runtimeVersion": {
+      "policy": "appVersion"
+    },
+    "newArchEnabled": true,
+    "experiments": {
+      "tsconfigPaths": true
     }
   }
 }
