@@ -1,6 +1,4 @@
-import Constants from "expo-constants";
-
-const healthTechApi = Constants.expoConfig.extra.healthTechApi;
+const healthTechApi = `https://healthtech-be.vercel.app`;
 
 
 const apiConfig = {

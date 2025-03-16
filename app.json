@@ -1,34 +1,60 @@
 {
   "expo": {
-    "name": "healthtech",
-    "slug": "text-expo",
+    "name": "Health Tech",
+    "slug": "health-tech",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",
-    "newArchEnabled": true,
     "splash": {
       "image": "./assets/splash-icon.png",
       "resizeMode": "contain",
       "backgroundColor": "#ffffff"
     },
+    "assetBundlePatterns": [
+      "**/*"
+    ],
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "bundleIdentifier": "com.healthtech.app",
+      "infoPlist": {
+        "NSCameraUsageDescription": "Ứng dụng cần quyền truy cập camera để chụp ảnh thực phẩm và đánh giá dinh dưỡng"
+      }
     },
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#ffffff"
       },
-      "package": "com.phongph137.textexpo"
+      "package": "com.healthtech.app",
+      "permissions": [
+        "CAMERA"
+      ],
+      "blockedPermissions": [
+        "android.permission.RECORD_AUDIO",
+        "android.permission.ACCESS_COARSE_LOCATION",
+        "android.permission.ACCESS_FINE_LOCATION",
+        "android.permission.FOREGROUND_SERVICE",
+        "android.permission.ACCESS_BACKGROUND_LOCATION"
+      ]
     },
     "web": {
       "favicon": "./assets/favicon.png"
     },
+    "plugins": [
+      [
+        "expo-image-picker",
+        {
+          "photosPermission": "Ứng dụng cần quyền truy cập camera để chụp ảnh thực phẩm và đánh giá dinh dưỡng.",
+          "cameraPermission": "Ứng dụng cần quyền truy cập camera để chụp ảnh thực phẩm và đánh giá dinh dưỡng."
+        }
+      ]
+    ],
     "extra": {
       "eas": {
-        "projectId": "7f3eb597-22b9-49a6-ab55-b50fd9a9edc9"
-      }
+        "projectId": "4c8802f2-6b1e-4e7a-b33f-e5b7503e60f4"
+      },
+      "healthTechApi": "https://healthtech-be.vercel.app"
     }
   }
 }
