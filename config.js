@@ -1,8 +1,5 @@
-const healthTechApi = `https://healthtech-be.vercel.app`;
-
-
 const apiConfig = {
-    baseURL: healthTechApi,
+    baseURL: `https://detect-food-be.onrender.com`,
     headers: {
         "Content-Type": "application/json",
     },

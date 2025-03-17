@@ -1,6 +1,5 @@
 import axios from "axios";
 import apiConfig from "../../../config.js";
-import AsyncStorage from '@react-native-async-storage/async-storage'; 
 
 const axiosClient = axios.create({
   baseURL: apiConfig.baseURL,
@@ -16,12 +15,6 @@ axiosClient.interceptors.response.use(
     return response;
   },
   async (error) => {
-    // // Refresh token is expired
-    // if (error.response && error.response.status === 404) {
-    //   await AsyncStorage.clear(); 
-    //   throw new Error('Token expired or not found'); 
-    // }
-
     // Unauthorized
     if (error.response && error.response.status === 401) {
       console.error("Unauthorized error:", error);
