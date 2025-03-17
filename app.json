@@ -24,7 +24,7 @@
     },
     "android": {
       "adaptiveIcon": {
-        "foregroundImage": "./assets/adaptive-icon.png",
+        "foregroundImage": "./assets/avatar.png",
         "backgroundColor": "#ffffff"
       },
       "package": "com.healthtech.app",
@@ -53,10 +53,10 @@
       ]
     ],
     "extra": {
+      "healthTechApi": "https://healthtech-be.vercel.app",
       "eas": {
-        "projectId": "4c8802f2-6b1e-4e7a-b33f-e5b7503e60f4"
-      },
-      "healthTechApi": "https://healthtech-be.vercel.app"
+        "projectId": "8c54f9de-c58c-416e-b0bd-32e49ff97f68"
+      }
     },
     "developmentClient": {
       "silentLaunch": true
