@@ -14,35 +14,35 @@ const Analytics = () => {
   const uploadImage = async (image) => {
     try {
       setLoading(true);
-      // const body = {
-      //   images: [image.base64],
-      //   message: "Tôi là Duy Hoàng",
-      // };
-      // const response = await ImageAPI.uploadImage(body);
+      const body = {
+        images: [image.base64],
+        message: "Tôi là Duy Hoàng",
+      };
+      const response = await ImageAPI.uploadImage(body);
       setScanResults("");
 
 
-      const response = [
-        {
-          "calories": "52 kcal",
-          "minerals": "Potassium, Calcium, Magnesium, Phosphorus, Iron",
-          "name": "Apple (Red Apple)",
-          "vitamins": "Vitamin C, Vitamin A, Vitamin E, Vitamin K, Vitamin B6"
-        }
-      ];
+      // const response = [
+      //   {
+      //     "calories": "52 kcal",
+      //     "minerals": "Potassium, Calcium, Magnesium, Phosphorus, Iron",
+      //     "name": "Apple (Red Apple)",
+      //     "vitamins": "Vitamin C, Vitamin A, Vitamin E, Vitamin K, Vitamin B6"
+      //   }
+      // ];
 
-      setTimeout(() => {
-        // Set scan results sau khi delay 5 giây
-        setScanResults(response);
+      // setTimeout(() => {
+      //   // Set scan results sau khi delay 5 giây
+      //   setScanResults(response);
 
-        // Tắt loading sau khi có kết quả
-        setLoading(false);
-      }, 5000); // Delay 5 seconds (5000 milliseconds)
+      //   // Tắt loading sau khi có kết quả
+      //   setLoading(false);
+      // }, 5000); // Delay 5 seconds (5000 milliseconds)
 
 
-      // if (response) {
-      //   setScanResults(response?.data);
-      // }
+      if (response) {
+        setScanResults(response?.data);
+      }
 
       Toast.show({
         type: 'success',
@@ -55,9 +55,9 @@ const Analytics = () => {
       console.error('Error uploading image:', error);
       Alert.alert('Lỗi', 'Không thể tải lên ảnh.');
     } 
-    // finally {
-    //   setLoading(false);
-    // }
+    finally {
+      setLoading(false);
+    }
   };
 
   const captureImage = async () => {
