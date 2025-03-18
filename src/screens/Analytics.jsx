@@ -5,11 +5,60 @@ import * as FileSystem from 'expo-file-system';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import ImageAPI from '../api/ImageAPI.js';
 import Toast from 'react-native-toast-message';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import UserAPI from '../api/UserAPI';
+import { useFocusEffect } from '@react-navigation/native';
 
 const Analytics = () => {
   const [imageUri, setImageUri] = useState(null);
   const [scanResults, setScanResults] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [subcription, setSubcription] = useState('');
+  const [freeTrialCount, setFreeTrialCount] = useState(0);
+
+  // Fetch user subscription details
+  const getUserDetails = async () => {
+    try {
+      const storedUserId = await AsyncStorage.getItem('userId');
+      const response = await UserAPI.getUserDetails(storedUserId);
+      if (String(response?.userDetails.subcription) === 'Premium') {
+        setSubcription('Premium');
+      } else if (String(response?.userDetails.subcription) === 'PremiumPlus') {
+        setSubcription('PremiumPlus');
+      } else {
+        setSubcription('Free');
+      }
+    } catch (error) {
+      console.error('Error fetching user details:', error);
+    }
+  };
+
+  // Load free trial count from AsyncStorage
+  const loadFreeTrialCount = async () => {
+    try {
+      const count = await AsyncStorage.getItem('freeTrialCount');
+      setFreeTrialCount(count !== null ? parseInt(count, 10) : 0);
+    } catch (error) {
+      console.error('Error loading free trial count:', error);
+    }
+  };
+
+  // Save free trial count to AsyncStorage
+  const saveFreeTrialCount = async (count) => {
+    try {
+      await AsyncStorage.setItem('freeTrialCount', count.toString());
+    } catch (error) {
+      console.error('Error saving free trial count:', error);
+    }
+  };
+
+  // Load subscription and trial count when screen is focused
+  useFocusEffect(
+    React.useCallback(() => {
+      getUserDetails();
+      loadFreeTrialCount();
+    }, [])
+  );
 
   const uploadImage = async (image) => {
     try {
@@ -20,25 +69,6 @@ const Analytics = () => {
       };
       const response = await ImageAPI.uploadImage(body);
       setScanResults("");
-
-
-      // const response = [
-      //   {
-      //     "calories": "52 kcal",
-      //     "minerals": "Potassium, Calcium, Magnesium, Phosphorus, Iron",
-      //     "name": "Apple (Red Apple)",
-      //     "vitamins": "Vitamin C, Vitamin A, Vitamin E, Vitamin K, Vitamin B6"
-      //   }
-      // ];
-
-      // setTimeout(() => {
-      //   // Set scan results sau khi delay 5 giây
-      //   setScanResults(response);
-
-      //   // Tắt loading sau khi có kết quả
-      //   setLoading(false);
-      // }, 5000); // Delay 5 seconds (5000 milliseconds)
-
 
       if (response) {
         setScanResults(response?.data);
@@ -54,22 +84,37 @@ const Analytics = () => {
     } catch (error) {
       console.error('Error uploading image:', error);
       Alert.alert('Lỗi', 'Không thể tải lên ảnh.');
-    } 
-    finally {
+    } finally {
       setLoading(false);
     }
   };
 
   const captureImage = async () => {
+    // Check camera permissions
     const permissionResult = await ImagePicker.requestCameraPermissionsAsync();
     if (!permissionResult.granted) {
       Alert.alert('Lỗi', 'Ứng dụng cần quyền truy cập camera!');
       return;
     }
+
+    // For Free users, check trial count
+    if (subcription === 'Free') {
+      if (freeTrialCount >= 3) {
+        Alert.alert(
+          'Hết lượt thử',
+          'Bạn đã hết lượt thử miễn phí. Vui lòng đăng ký gói Premium để tiếp tục sử dụng!',
+          [{ text: 'OK', onPress: () => console.log('OK Pressed') }]
+        );
+        return;
+      }
+    }
+
+    // Capture image
     const result = await ImagePicker.launchCameraAsync({
       mediaTypes: ImagePicker.MediaTypeOptions.Images,
       quality: 1,
     });
+
     if (!result.canceled) {
       const { uri } = result.assets[0];
       setImageUri(uri);
@@ -79,6 +124,13 @@ const Analytics = () => {
         base64: base64String,
       };
       await uploadImage(image);
+
+      // Increment free trial count for Free users
+      if (subcription === 'Free') {
+        const newCount = freeTrialCount + 1;
+        setFreeTrialCount(newCount);
+        await saveFreeTrialCount(newCount);
+      }
     }
   };
 
@@ -88,6 +140,12 @@ const Analytics = () => {
       <TouchableOpacity style={styles.button} onPress={captureImage}>
         <Text style={styles.buttonText}>Chụp ảnh</Text>
       </TouchableOpacity>
+
+      {subcription === 'Free' && (
+        <Text style={styles.trialText}>
+          Lượt thử miễn phí còn lại: {3 - freeTrialCount}/3
+        </Text>
+      )}
 
       {imageUri && (
         <View style={styles.imageContainer}>
@@ -147,6 +205,11 @@ const styles = StyleSheet.create({
     color: '#fff',
     fontSize: 16,
     fontWeight: 'bold',
+  },
+  trialText: {
+    fontSize: 16,
+    color: '#555',
+    marginBottom: 20,
   },
   imageContainer: {
     marginTop: 20,
@@ -212,7 +275,6 @@ const styles = StyleSheet.create({
     borderColor: '#f5c6cb',
     overflow: 'hidden',
   },
-
 });
 
 export default Analytics;

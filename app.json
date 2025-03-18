@@ -55,7 +55,7 @@
     "extra": {
       "healthTechApi": "https://healthtech-be.vercel.app",
       "eas": {
-        "projectId": "8c54f9de-c58c-416e-b0bd-32e49ff97f68"
+        "projectId": "1f648056-bfe9-4306-9726-965db78cd7bb"
       }
     },
     "developmentClient": {

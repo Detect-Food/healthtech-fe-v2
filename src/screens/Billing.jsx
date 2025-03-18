@@ -7,17 +7,18 @@ import TransactionAPI from '../api/TransactionAPI';
 function Billing() {
     const [isModalVisible, setIsModalVisible] = useState(false);
     const [timer, setTimer] = useState(60);
-    const [subscription, setSubscription] = useState('');
-
+    const [subcription, setSubcription] = useState('');
 
     const getUserDetails = async () => {
         try {
             const storedUserId = await AsyncStorage.getItem('userId');
             const response = await UserAPI.getUserDetails(storedUserId);
             if (String(response?.userDetails.subcription) === 'Premium') {
-                setSubscription('Premium');
+                setSubcription('Premium');
+            } else if (String(response?.userDetails.subcription) === 'PremiumPlus') {
+                setSubcription('PremiumPlus');
             } else {
-                setSubscription('Free');
+                setSubcription('Free');
             }
         } catch (error) {
             console.error('Error fetching user details:', error);
@@ -25,7 +26,6 @@ function Billing() {
     };
 
     useEffect(() => {
-
         getUserDetails();
 
         let interval;
@@ -40,9 +40,10 @@ function Billing() {
         return () => clearInterval(interval);
     }, [isModalVisible, timer]);
 
-    const handleGetPremium = () => {
+    const handleGetPremium = (plan) => {
         setIsModalVisible(true);
         setTimer(60);
+        setSubcription(plan); // Temporarily set the subcription for the modal
     };
 
     const handleConfirmPayment = async () => {
@@ -52,8 +53,6 @@ function Billing() {
         if (response.status === 200) {
             Alert.alert('Thanh toán thành công');
         }
-        setSubscription('Premium');
-        
         setIsModalVisible(false);
     };
 
@@ -85,13 +84,37 @@ function Billing() {
                     <Text style={styles.feature}>✔ Gợi ý các kế hoạch bữa ăn phù hợp với mục tiêu sức khỏe</Text>
                     <Text style={styles.feature}>✔ Tư vấn dinh dưỡng AI dựa trên thói quen ăn uống (Chat Bot)</Text>
                 </View>
-                {subscription === 'Premium' ? (
+                {subcription === 'Premium' ? (
                     <TouchableOpacity style={styles.button}>
-                        <Text style={styles.buttonText}>Đang dùng bản premium</Text>
+                        <Text style={styles.buttonText}>Đang dùng bản Premium</Text>
                     </TouchableOpacity>
                 ) : (
-                    <TouchableOpacity style={styles.button} onPress={handleGetPremium}>
+                    <TouchableOpacity style={styles.button} onPress={() => handleGetPremium('Premium')}>
                         <Text style={styles.buttonText}>GET PREMIUM</Text>
+                    </TouchableOpacity>
+                )}
+            </View>
+
+            {/* Gói Premium Plus */}
+            <View style={styles.card}>
+                <Text style={styles.cardTitle}>Premium Plus</Text>
+                <Text style={styles.cardPrice}>219.000 VND / 3 months</Text>
+                <Text style={styles.featuresTitle}>Tính năng:</Text>
+                <View style={styles.features}>
+                    <Text style={styles.feature}>✔ Tất cả các tính năng của gói Premium</Text>
+                    <Text style={styles.feature}>✔ Tùy chỉnh các tình trạng sức khỏe như dị ứng hoặc bệnh lý</Text>
+                    <Text style={styles.feature}>✔ Tùy chỉnh chế độ ăn uống (thực phẩm chay, sống, v.v.)</Text>
+                    <Text style={styles.feature}>✔ Kế hoạch bữa ăn dinh dưỡng dựa trên nhu cầu</Text>
+                    <Text style={styles.feature}>✔ Gợi ý các kế hoạch bữa ăn phù hợp với mục tiêu sức khỏe</Text>
+                    <Text style={styles.feature}>✔ Tư vấn dinh dưỡng AI dựa trên thói quen ăn uống (Chat Bot)</Text>
+                </View>
+                {subcription === 'PremiumPlus' ? (
+                    <TouchableOpacity style={styles.button}>
+                        <Text style={styles.buttonText}>Đang dùng bản Premium Plus</Text>
+                    </TouchableOpacity>
+                ) : (
+                    <TouchableOpacity style={styles.button} onPress={() => handleGetPremium('PremiumPlus')}>
+                        <Text style={styles.buttonText}>GET PREMIUM PLUS</Text>
                     </TouchableOpacity>
                 )}
             </View>
@@ -114,7 +137,7 @@ function Billing() {
 
                         <View style={styles.buttonContainer}>
                             <TouchableOpacity style={styles.buttonCancel} onPress={() => setIsModalVisible(false)}>
-                                <Text style={styles.buttonText}>Hủy </Text>
+                                <Text style={styles.buttonText}>Hủy</Text>
                             </TouchableOpacity>
                             <TouchableOpacity style={styles.buttonConfirm} onPress={handleConfirmPayment}>
                                 <Text style={styles.buttonText}>Xác nhận</Text>
@@ -213,13 +236,6 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         alignItems: 'center',
         backgroundColor: 'rgba(0, 0, 0, 0.5)',
-    },
-    modalContent: {
-        backgroundColor: 'white',
-        padding: 20,
-        borderRadius: 10,
-        width: '80%',
-        alignItems: 'center',
     },
     modalTitle: {
         fontSize: 18,

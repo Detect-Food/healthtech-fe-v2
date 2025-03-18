@@ -1,16 +1,56 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { View, Text, FlatList, TextInput, TouchableOpacity, StyleSheet, KeyboardAvoidingView, Platform, ActivityIndicator } from 'react-native';
+import { View, Text, FlatList, TextInput, TouchableOpacity, StyleSheet, KeyboardAvoidingView, Platform, ActivityIndicator, Alert } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import ChatBotApi from '../api/ChatBotApi';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useFocusEffect } from '@react-navigation/native';
+import UserAPI from '../api/UserAPI';
 
 const ChatBot = () => {
   const [messages, setMessages] = useState([]);
   const [inputText, setInputText] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const flatListRef = useRef(null); // Thêm ref cho FlatList
+  const [subcription, setSubcription] = useState('');
+
+  const getUserDetails = async () => {
+    try {
+      const storedUserId = await AsyncStorage.getItem('userId');
+      const response = await UserAPI.getUserDetails(storedUserId);
+      console.log(response?.userDetails?.subcription);
+      console.log(String(response?.userDetails.subcription));
+      
+      if (String(response?.userDetails.subcription) === 'Premium') {
+        setSubcription('Premium');
+      } else if (String(response?.userDetails.subcription) === 'PremiumPlus') {
+        setSubcription('PremiumPlus');
+      } else {
+        setSubcription('Free');
+      }
+    } catch (error) {
+      console.error('Error fetching user details:', error);
+    }
+  };
+
+  useFocusEffect(
+    React.useCallback(() => {
+      getUserDetails();
+    }, [])
+  );
 
   const handleSend = async () => {
     if (!inputText.trim()) return;
+
+    // Check subscription when the user tries to send a message
+    if (subcription === 'Free') {
+      Alert.alert(
+        'Tính năng bị giới hạn',
+        'Vui lòng đăng ký gói Premium để sử dụng tính năng này!',
+        [{ text: 'OK', onPress: () => console.log('OK Pressed') }]
+      );
+      setInputText(''); // Clear input after alert
+      return;
+    }
 
     const userMessage = { id: Date.now().toString(), text: inputText, isUser: true };
     setMessages((prevMessages) => [...prevMessages, userMessage]);
